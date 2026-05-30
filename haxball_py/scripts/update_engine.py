@@ -12,8 +12,12 @@ def main():
             headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
         )
         with urllib.request.urlopen(req_hash) as response:
-            hash_data = json.loads(response.read().decode("utf-8"))
-            cache_hash = hash_data.get("hash")
+            raw_content = response.read().decode("utf-8").strip()
+            hash_data = json.loads(raw_content)
+            if isinstance(hash_data, dict):
+                cache_hash = hash_data.get("hash")
+            else:
+                cache_hash = hash_data
         
         if not cache_hash:
             raise ValueError("Could not find hash in cache_hash.json")
