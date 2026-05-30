@@ -288,14 +288,62 @@ El proyecto respeta el host headless oficial de HaxBall como única fuente de ve
 
 ## 🔌 API Extendida
 
-La capa `HaxballClientExtended` / `RoomExtended` añade:
+La capa `HaxballClientExtended` / `RoomExtended` añade una API moderna e intuitiva sobre la sala nativa.
 
-- **Gestión de jugadores** — wrapper `Player` con `.reply()`, estado admin, permisos
-- **Sistema de comandos** — comandos tipados con acceso basado en roles
-- **Sistema de módulos** — clases `Module` conectables con auto-descubrimiento
-- **Emisor de eventos** — bus de eventos personalizado para comunicación entre módulos
-- **Abstracción de discos** — wrapper `Disc` para propiedades físicas
-- **Registro** — registro automático de chat
+### Propiedades en Vivo
+
+En lugar de llamar métodos verbosos en la sala nativa, interactúa directamente con objetos **Player** y **Disc**:
+
+| Qué | Forma antigua | Forma nueva |
+|---|---|---|
+| Dar admin | `await room.set_player_admin(id, True)` | `player.admin = True` |
+| Cambiar equipo | `await room.set_player_team(id, 1)` | `player.team = 1` |
+| Cambiar radio | `await room.set_player_disc_properties(id, {"radius": 15})` | `player.radius = 15` |
+| Expulsar | `await room.kick_player(id, "razón")` | `player.kick("razón")` |
+| Banear | `await room.kick_player(id, "spam", True)` | `player.ban("spam")` |
+| Mensaje privado | `await room.send_chat("hola", id)` | `player.reply("hola")` |
+| Física del disco | `await room.set_disc_properties(id, {...})` | `disc.x = 10; disc.radius = 5` |
+| Obtener IP | — | `player.ip` |
+
+### Propiedades del Player
+
+| Propiedad | Tipo | Descripción |
+|---|---|---|
+| `player.id` | `int` | ID único (solo lectura) |
+| `player.name` | `str` | Nombre del jugador (solo lectura) |
+| `player.admin` | `bool` | Obtener/establecer admin |
+| `player.team` | `int` | Obtener/establecer equipo (0=spec, 1=red, 2=blue) |
+| `player.auth` | `str \| None` | ID pública (solo lectura) |
+| `player.conn` | `str \| None` | Identificador de conexión (solo lectura) |
+| `player.ip` | `str \| None` | Dirección IP decodificada (solo lectura) |
+| `player.position` | `Position \| None` | Obtener/establecer posición en el mapa |
+| `player.roles` | `list` | Roles de permiso |
+
+### Propiedades del Disc (también en Player)
+
+`player.x`, `player.y`, `player.radius`, `player.xspeed`, `player.yspeed`, `player.xgravity`, `player.ygravity`, `player.b_coeff`, `player.inv_mass`, `player.damping`, `player.c_mask`, `player.c_group`, `player.color`
+
+Cualquier cambio en estas propiedades se sincroniza inmediatamente con la sala nativa.
+
+### Métodos de RoomExtended
+
+| Método | Descripción |
+|---|---|
+| `room.send(msg, color?, style?, target_id?)` | Enviar anuncio o mensaje privado |
+| `room.set_stadium(nombre \| dict)` | Establecer estadio (nombre o HBS JSON) |
+| `room.lock_teams()` / `room.unlock_teams()` | Bloquear/desbloquear equipos |
+| `room.enable_captcha()` / `room.disable_captcha()` | Activar/desactivar captcha |
+| `room.start()` / `room.stop()` | Iniciar/detener partida |
+| `room.pause()` / `room.unpause()` | Pausar/reanudar partida |
+| `room.start_recording()` / `await room.stop_recording()` | Grabación de replay |
+| `room.unban(id)` / `room.unban_all()` | Desbanear jugadores |
+| `room.clear_password()` / `room.password = "..."` | Gestionar contraseña de sala |
+| `await room.is_game_in_progress()` | Verificar si hay partida en curso |
+| `await room.scores` | Obtener puntuaciones actuales |
+| `await room.ball` | Obtener el disco de la bola (Disc con props en vivo) |
+| `room.command(options)` | Registrar un comando |
+| `room.remove_command(nombre)` | Eliminar un comando |
+| `room.module(ModuleClass)` | Cargar un módulo |
 
 ---
 

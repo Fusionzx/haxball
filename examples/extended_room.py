@@ -14,6 +14,7 @@ class AdminModule(Module):
 
     @event
     async def on_player_join(self, player: Player):
+        print(f"Player joined: {player.name} (id={player.id}, ip={player.ip})")
         self.room.send(f"Welcome to the room, {player.name}!", color=0x00FFFF)
 
     @event

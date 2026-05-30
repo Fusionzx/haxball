@@ -304,14 +304,62 @@ Both sync and async callbacks are supported.
 
 ## 🔌 Extended API
 
-The `HaxballClientExtended` / `RoomExtended` layer adds:
+The `HaxballClientExtended` / `RoomExtended` layer adds a modern, intuitive API on top of the native room:
 
-- **Player management** — `Player` wrapper with `.reply()`, admin state, permissions
-- **Command system** — typed command registration with role-based access
-- **Module system** — pluggable `Module` classes with auto-discovery
-- **Event emitter** — custom event bus for inter-module communication
-- **Disc abstraction** — `Disc` wrapper with physics property management
-- **Logging** — automatic chat logging
+### Live Properties
+
+Instead of calling verbose methods on the native room, you interact directly with **Player** and **Disc** objects:
+
+| What | Old way | New way |
+|---|---|---|
+| Grant admin | `await room.set_player_admin(id, True)` | `player.admin = True` |
+| Move team | `await room.set_player_team(id, 1)` | `player.team = 1` |
+| Change radius | `await room.set_player_disc_properties(id, {"radius": 15})` | `player.radius = 15` |
+| Kick player | `await room.kick_player(id, "bye")` | `player.kick("bye")` |
+| Ban player | `await room.kick_player(id, "spam", True)` | `player.ban("spam")` |
+| Send whisper | `await room.send_chat("hi", id)` | `player.reply("hi")` |
+| Set disc physics | `await room.set_disc_properties(id, {...})` | `disc.x = 10; disc.radius = 5` |
+| Get IP | — | `player.ip` |
+
+### Player Properties
+
+| Property | Type | Description |
+|---|---|---|
+| `player.id` | `int` | Player's unique ID (read-only) |
+| `player.name` | `str` | Player's name (read-only) |
+| `player.admin` | `bool` | Get/set admin status |
+| `player.team` | `int` | Get/set team (0=spec, 1=red, 2=blue) |
+| `player.auth` | `str \| None` | Public ID (read-only) |
+| `player.conn` | `str \| None` | Connection identifier (read-only) |
+| `player.ip` | `str \| None` | Decoded IP address (read-only) |
+| `player.position` | `Position \| None` | Get/set position on the map |
+| `player.roles` | `list` | Permission roles |
+
+### Disc Properties (also on Player)
+
+`player.x`, `player.y`, `player.radius`, `player.xspeed`, `player.yspeed`, `player.xgravity`, `player.ygravity`, `player.b_coeff`, `player.inv_mass`, `player.damping`, `player.c_mask`, `player.c_group`, `player.color`
+
+Setting any of these immediately syncs to the native room.
+
+### RoomExtended Methods
+
+| Method | Description |
+|---|---|
+| `room.send(msg, color?, style?, target_id?)` | Send announcement or whisper |
+| `room.set_stadium(name \| dict)` | Set stadium (name or HBS JSON) |
+| `room.lock_teams()` / `room.unlock_teams()` | Lock/unlock team switching |
+| `room.enable_captcha()` / `room.disable_captcha()` | Toggle captcha requirement |
+| `room.start()` / `room.stop()` | Start/stop the game |
+| `room.pause()` / `room.unpause()` | Pause/unpause the game |
+| `room.start_recording()` / `await room.stop_recording()` | Replay recording |
+| `room.unban(id)` / `room.unban_all()` | Unban players |
+| `room.clear_password()` / `room.password = "..."` | Room password management |
+| `await room.is_game_in_progress()` | Check if a match is running |
+| `await room.scores` | Get current scores |
+| `await room.ball` | Get the ball disc (Disc object with live props) |
+| `room.command(options)` | Register a command |
+| `room.remove_command(name)` | Remove a command |
+| `room.module(ModuleClass)` | Load a module |
 
 ### 📦 Module Example
 

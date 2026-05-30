@@ -278,6 +278,67 @@ O projeto respeita o host headless oficial do HaxBall como única fonte de verda
 
 ---
 
+## 🔌 API Estendida
+
+A camada `HaxballClientExtended` / `RoomExtended` adiciona uma API moderna e intuitiva sobre a sala nativa.
+
+### Propriedades Live
+
+Em vez de chamar métodos verbosos na sala nativa, interaja diretamente com objetos **Player** e **Disc**:
+
+| O que | Jeito antigo | Jeito novo |
+|---|---|---|
+| Dar admin | `await room.set_player_admin(id, True)` | `player.admin = True` |
+| Mudar time | `await room.set_player_team(id, 1)` | `player.team = 1` |
+| Mudar raio | `await room.set_player_disc_properties(id, {"radius": 15})` | `player.radius = 15` |
+| Expulsar | `await room.kick_player(id, "motivo")` | `player.kick("motivo")` |
+| Banir | `await room.kick_player(id, "spam", True)` | `player.ban("spam")` |
+| Mensagem privada | `await room.send_chat("oi", id)` | `player.reply("oi")` |
+| Física do disco | `await room.set_disc_properties(id, {...})` | `disc.x = 10; disc.radius = 5` |
+| Obter IP | — | `player.ip` |
+
+### Propriedades do Player
+
+| Propriedade | Tipo | Descrição |
+|---|---|---|
+| `player.id` | `int` | ID único (somente leitura) |
+| `player.name` | `str` | Nome do jogador (somente leitura) |
+| `player.admin` | `bool` | Obter/definir admin |
+| `player.team` | `int` | Obter/definir time (0=spec, 1=red, 2=blue) |
+| `player.auth` | `str \| None` | ID pública (somente leitura) |
+| `player.conn` | `str \| None` | Identificador de conexão (somente leitura) |
+| `player.ip` | `str \| None` | Endereço IP decodificado (somente leitura) |
+| `player.position` | `Position \| None` | Obter/definir posição no mapa |
+| `player.roles` | `list` | Roles de permissão |
+
+### Propriedades do Disc (também no Player)
+
+`player.x`, `player.y`, `player.radius`, `player.xspeed`, `player.yspeed`, `player.xgravity`, `player.ygravity`, `player.b_coeff`, `player.inv_mass`, `player.damping`, `player.c_mask`, `player.c_group`, `player.color`
+
+Qualquer alteração nessas propriedades sincroniza imediatamente com a sala nativa.
+
+### Métodos do RoomExtended
+
+| Método | Descrição |
+|---|---|
+| `room.send(msg, color?, style?, target_id?)` | Enviar anúncio ou mensagem privada |
+| `room.set_stadium(nome \| dict)` | Definir estádio (nome ou HBS JSON) |
+| `room.lock_teams()` / `room.unlock_teams()` | Bloquear/desbloquear troca de times |
+| `room.enable_captcha()` / `room.disable_captcha()` | Ativar/desativar captcha |
+| `room.start()` / `room.stop()` | Iniciar/parar partida |
+| `room.pause()` / `room.unpause()` | Pausar/retomar partida |
+| `room.start_recording()` / `await room.stop_recording()` | Gravação de replay |
+| `room.unban(id)` / `room.unban_all()` | Desbanir jogadores |
+| `room.clear_password()` / `room.password = "..."` | Gerenciar senha da sala |
+| `await room.is_game_in_progress()` | Verificar se há partida em andamento |
+| `await room.scores` | Obter pontuações atuais |
+| `await room.ball` | Obter o disco da bola (Disc com props live) |
+| `room.command(options)` | Registrar um comando |
+| `room.remove_command(nome)` | Remover um comando |
+| `room.module(ModuleClass)` | Carregar um módulo |
+
+---
+
 ## 📄 Licença
 
 Este projeto é um wrapper em torno da API oficial do HaxBall Headless Host. Não é afiliado nem endossado pelo HaxBall.
