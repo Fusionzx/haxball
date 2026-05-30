@@ -18,7 +18,7 @@ class HaxballConfig(BaseModel):
     max_players: int = Field(default=16, alias="maxPlayers", ge=1, le=50)
     public: bool = True
     no_player: bool = Field(default=True, alias="noPlayer")
-    token: str = Field(min_length=1)
+    token: str | None = None
     geo: GeoConfig | None = None
 
     proxy_server: str | None = None
@@ -50,8 +50,9 @@ class HaxballConfig(BaseModel):
             "maxPlayers": self.max_players,
             "public": self.public,
             "noPlayer": self.no_player,
-            "token": self.token,
         }
+        if self.token is not None:
+            data["token"] = self.token
         if self.player_name is not None:
             data["playerName"] = self.player_name
         if self.password is not None:
