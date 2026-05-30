@@ -4,13 +4,25 @@ from typing import Any, Callable, Iterator
 from .player import Player
 from .enums import Teams
 
+
 class PlayerList(collections.abc.MutableMapping):
+    """A mapping of player IDs to :class:`~haxball_py.player.Player` objects.
+
+    Behaves like a dict::
+
+        player = room.players[1]       # get by ID
+        for pid, p in room.players.items(): ...
+
+    It also provides chainable filter methods (e.g. ``.admins().red()``)
+    and bulk operations (``.kick()``, ``.reply()``, etc.).
+    """
+
     def __init__(self, players: dict[int, Player] | None = None) -> None:
         self._players: dict[int, Player] = players if players is not None else {}
 
     @property
     def size(self) -> int:
-        """Returns the number of players in the list."""
+        """The number of players currently in the list."""
         return len(self._players)
 
     def __getitem__(self, key: int) -> Player:
@@ -29,17 +41,27 @@ class PlayerList(collections.abc.MutableMapping):
         return len(self._players)
 
     def add(self, player: Player) -> None:
-        """Adds a player to the list."""
+        """Adds a player to the list.
+
+        :param player: The :class:`~haxball_py.player.Player` to add.
+        """
         self._players[player.id] = player
 
     def remove(self, player: Player | int) -> None:
-        """Removes a player from the list."""
+        """Removes a player from the list.
+
+        :param player: A :class:`~haxball_py.player.Player` instance or a numeric ID.
+        """
         pid = player.id if isinstance(player, Player) else player
         if pid in self._players:
             del self._players[pid]
 
     def get(self, predicate: int | Callable[[Player], bool]) -> Player | None:
-        """Gets a player by ID or by a predicate function."""
+        """Finds a single player by ID or a predicate function.
+
+        :param predicate: A player ID, or a callable ``(Player) -> bool``.
+        :returns: The first matching player, or ``None``.
+        """
         if isinstance(predicate, int):
             return self._players.get(predicate)
         for p in self._players.values():
@@ -48,76 +70,97 @@ class PlayerList(collections.abc.MutableMapping):
         return None
 
     def get_all(self, predicate: Callable[[Player], bool]) -> PlayerList:
-        """Gets all players matching a predicate function."""
+        """Finds all players matching a predicate.
+
+        :param predicate: A callable ``(Player) -> bool``.
+        :returns: A new :class:`PlayerList` with the matches.
+        """
         matched = {p.id: p for p in self._players.values() if predicate(p)}
         return PlayerList(matched)
 
     def values(self) -> list[Player]:
-        """Returns a list of all Player objects."""
+        """Returns all players as a plain list."""
         return list(self._players.values())
 
     def order(self, room: Any) -> PlayerList:
-        """Returns a new PlayerList ordered or sorted by something standard (e.g., ID or custom order)."""
-        # HaxBall reorder/order normally retains order of IDs
+        """Returns a new :class:`PlayerList` sorted by player ID."""
         sorted_players = sorted(self._players.values(), key=lambda p: p.id)
         return PlayerList({p.id: p for p in sorted_players})
 
     def first(self) -> Player | None:
-        """Returns the first player in the list, or None."""
+        """The first player in the list (insertion order), or ``None``."""
         if not self._players:
             return None
         return next(iter(self._players.values()))
 
     def last(self) -> Player | None:
-        """Returns the last player in the list, or None."""
+        """The last player in the list, or ``None``."""
         if not self._players:
             return None
         return list(self._players.values())[-1]
 
     def get_by_name(self, name: str) -> PlayerList:
-        """Filters players by name."""
+        """Filters players whose name exactly matches the given string."""
         return self.get_all(lambda p: p.name == name)
 
     def get_by_auth(self, auth: str) -> Player | None:
-        """Gets a player by auth key."""
+        """Finds a player by their public auth token.
+
+        :param auth: The auth string to match.
+        :returns: The matching :class:`~haxball_py.player.Player`, or ``None``.
+        """
         return self.get(lambda p: p.auth == auth)
 
     def get_by_conn_or_ip(self, conn_or_ip: str) -> PlayerList:
-        """Filters players by connection string or IP address."""
+        """Filters players by connection fingerprint or IP address.
+
+        :param conn_or_ip: A ``conn`` string or an IP address.
+        """
         return self.get_all(lambda p: p.conn == conn_or_ip or p.ip == conn_or_ip)
 
     def kick(self, reason: str = "") -> None:
-        """Kicks all players in this list."""
+        """Kicks every player in this list.
+
+        :param reason: An optional reason shown to each kicked player.
+        """
         for p in list(self._players.values()):
             p.kick(reason)
 
     def ban(self, reason: str = "") -> None:
-        """Bans all players in this list."""
+        """Bans every player in this list.
+
+        :param reason: An optional reason shown to each banned player.
+        """
         for p in list(self._players.values()):
             p.ban(reason)
 
     def spectators(self) -> PlayerList:
-        """Filters spectators."""
+        """Filters players who are spectating."""
         return self.get_all(lambda p: p.team == Teams.SPECTATORS)
 
     def red(self) -> PlayerList:
-        """Filters red team players."""
+        """Filters players on the red team."""
         return self.get_all(lambda p: p.team == Teams.RED)
 
     def blue(self) -> PlayerList:
-        """Filters blue team players."""
+        """Filters players on the blue team."""
         return self.get_all(lambda p: p.team == Teams.BLUE)
 
     def teams(self) -> PlayerList:
-        """Filters players on red or blue team."""
+        """Filters players on either the red or blue team (excludes spectators)."""
         return self.get_all(lambda p: p.team in (Teams.RED, Teams.BLUE))
 
     def admins(self) -> PlayerList:
-        """Filters admins."""
+        """Filters players who have admin rights."""
         return self.get_all(lambda p: p.admin)
 
     def reply(self, message: str, color: int | None = None, style: str | None = None) -> None:
-        """Replies to all players in the list."""
+        """Sends a private message to every player in this list.
+
+        :param message: The message text.
+        :param color:  An RGB integer color.
+        :param style:  One of ``"normal"``, ``"bold"``, ``"italic"``, etc.
+        """
         for p in self._players.values():
             p.reply(message, color, style)
 

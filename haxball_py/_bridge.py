@@ -1,20 +1,18 @@
 from __future__ import annotations
-import asyncio
-from typing import Any, Callable
-from playwright.async_api import Page
-from .browser import BrowserBridge, BrowserResources
-from .errors import HaxballBridgeError
+from typing import Any
+from .browser import BrowserBridge
+
 
 class ExtendedBrowserBridge(BrowserBridge):
     """Extended Browser Bridge that handles additional JS injections if needed,
     and supports capturing binary data like recording playback bytes.
     """
-    
+
     async def call_binary(self, method: str, *args: Any) -> bytes | None:
         """Calls a room method that returns binary data (like stopRecording)
         and converts it to Python bytes.
         """
-        _ALLOWED_BINARY = ['stopRecording']
+        _ALLOWED_BINARY = ["stopRecording"]
         if method not in _ALLOWED_BINARY:
             raise ValueError(f"Method not allowed for binary call: {method}")
         result = await self.page.evaluate(
@@ -38,7 +36,7 @@ class ExtendedBrowserBridge(BrowserBridge):
               return res;
             }
             """,
-            {'method': method, 'args': list(args)},
+            {"method": method, "args": list(args)},
         )
         if isinstance(result, list):
             return bytes(result)

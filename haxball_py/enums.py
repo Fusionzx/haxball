@@ -1,9 +1,34 @@
+from typing import Any
 from enum import IntEnum
+
 
 class Teams(IntEnum):
     SPECTATORS = 0
+    SPEC = 0
     RED = 1
     BLUE = 2
+
+    def send(
+        self,
+        room: Any,
+        message: str,
+        color: int | None = None,
+        style: str | None = None,
+        sound: int | None = None,
+    ) -> None:
+        from .extended import RoomExtended
+
+        if not isinstance(room, RoomExtended):
+            raise TypeError("room must be a RoomExtended")
+        targets = {
+            Teams.RED: room.players.red,
+            Teams.BLUE: room.players.blue,
+            Teams.SPECTATORS: room.players.spectators,
+        }
+        players = targets.get(self, lambda: [])()
+        for p in players.values():
+            p.reply(message, color, style, sound)
+
 
 class ChatStyle:
     NORMAL = "normal"
@@ -13,10 +38,12 @@ class ChatStyle:
     SMALL_BOLD = "small-bold"
     SMALL_ITALIC = "small-italic"
 
+
 class ChatSounds(IntEnum):
     NONE = 0
     NORMAL = 1
     NOTIFICATION = 2
+
 
 class Stadiums:
     CLASSIC = "Classic"
@@ -29,6 +56,7 @@ class Stadiums:
     DOUBLE_TROUBLE = "Double Trouble"
     EASY_ICE = "Easy Ice"
     PRO = "Pro"
+
 
 class Colors:
     WHITE = 0xFFFFFF

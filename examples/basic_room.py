@@ -1,4 +1,5 @@
 import asyncio
+import os
 
 from haxball_py import HaxballClient, HaxballConfig
 
@@ -12,6 +13,7 @@ async def main() -> None:
                 max_players=16,
                 public=False,
                 no_player=True,
+                token=os.environ.get("HAXBALL_TOKEN"),
             )
         )
 

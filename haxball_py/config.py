@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Any
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class GeoConfig(BaseModel):
@@ -21,17 +21,17 @@ class HaxballConfig(BaseModel):
     token: str | None = None
     geo: GeoConfig | None = None
 
+    prefix: str = "!"
     proxy_server: str | None = None
     headless: bool = True
     browser_executable_path: str | None = None
     browser_channel: str | None = None
     browser_args: list[str] = Field(default_factory=list)
     timeout_ms: int = Field(default=30_000, ge=1)
+    debug: bool = False
     headless_host_url: str = "https://html5.haxball.com/headless"
 
-    class Config:
-        populate_by_name = True
-        extra = "allow"
+    model_config = ConfigDict(populate_by_name=True, extra="allow")
 
     @field_validator("browser_args")
     @classmethod
@@ -50,6 +50,7 @@ class HaxballConfig(BaseModel):
             "maxPlayers": self.max_players,
             "public": self.public,
             "noPlayer": self.no_player,
+            "prefix": self.prefix,
         }
         if self.token is not None:
             data["token"] = self.token

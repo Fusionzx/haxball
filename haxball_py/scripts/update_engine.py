@@ -25,7 +25,7 @@ def nodeify_source(source: str) -> str:
         assignment = hb_match.group(0)
         # Find the = sign and extract RHS (handle optional whitespace)
         eq_pos = assignment.index("=")
-        rhs = assignment[eq_pos + 1:-1].strip()
+        rhs = assignment[eq_pos + 1 : -1].strip()
         source = source.replace(
             assignment,
             f"promiseResolve({rhs});",

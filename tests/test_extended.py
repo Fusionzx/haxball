@@ -1,7 +1,6 @@
 import pytest
-import asyncio
 from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import MagicMock
 
 from haxball_py import (
     Player,
@@ -13,8 +12,9 @@ from haxball_py import (
     module,
     module_command,
     event,
-    Teams
+    Teams,
 )
+
 
 def test_command_argument_parsing():
     arg_num = CommandArgument("123")
@@ -55,8 +55,9 @@ def test_player_list_filters():
 async def test_command_execution():
     room_mock = MagicMock()
     player = Player(id=1, name="Alice", team=1, admin=True, room=room_mock)
-    
+
     called = False
+
     async def dummy_cmd(info: CommandExecInfo):
         nonlocal called
         called = True
@@ -64,22 +65,18 @@ async def test_command_execution():
         assert len(info.arguments) == 1
         assert info.arguments[0].raw == "test"
 
-    cmd = Command(
-        name="test",
-        func=dummy_cmd,
-        roles=["admin"]
-    )
+    cmd = Command(name="test", func=dummy_cmd, roles=["admin"])
 
     assert cmd.is_allowed(player) is True
-    
+
     info = CommandExecInfo(
         player=player,
         message="!test test",
         room=room_mock,
         at=datetime.now(),
-        arguments=[CommandArgument("test")]
+        arguments=[CommandArgument("test")],
     )
-    
+
     await cmd.run(info)
     assert called is True
 

@@ -46,6 +46,7 @@ class HaxballClient:
             token = config.get("token")
             if not token or "YOUR_TOKEN" in str(token):
                 import os
+
                 token = os.environ.get("HAXBALL_TOKEN")
                 if not token:
                     token = input("Please enter your HaxBall token: ").strip()
@@ -54,6 +55,7 @@ class HaxballClient:
         elif isinstance(config, HaxballConfig):
             if not config.token or "YOUR_TOKEN" in config.token:
                 import os
+
                 token = os.environ.get("HAXBALL_TOKEN")
                 if not token:
                     token = input("Please enter your HaxBall token: ").strip()

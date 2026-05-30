@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
+from collections.abc import Callable
 from inspect import isawaitable
 from typing import Any
 
@@ -88,6 +88,7 @@ class Room:
                 return Player.model_validate(value)
             if {"x", "y"}.issubset(value.keys()) and len(value) <= 4:
                 from .models import Position
+
                 return Position.model_validate(value)
             if any(key in value for key in ("xspeed", "yspeed", "gravity", "invMass", "bCoef")):
                 return DiscProperties.from_js(value)
@@ -104,7 +105,10 @@ class Room:
         return await self._bridge.call(method, *args)
 
     async def send_chat(self, message: str, target_id: int | None = None) -> Any:
-        return await self.call("sendChat", message, target_id)
+        args = [message]
+        if target_id is not None:
+            args.append(target_id)
+        return await self.call("sendChat", *args)
 
     async def set_player_admin(self, player_id: int, admin: bool) -> Any:
         return await self.call("setPlayerAdmin", player_id, admin)
@@ -136,7 +140,9 @@ class Room:
     async def set_teams_lock(self, locked: bool) -> Any:
         return await self.call("setTeamsLock", locked)
 
-    async def set_team_colors(self, team: int, angle: float, text_color: int, colors: list[int]) -> Any:
+    async def set_team_colors(
+        self, team: int, angle: float, text_color: int, colors: list[int]
+    ) -> Any:
         return await self.call("setTeamColors", team, angle, text_color, colors)
 
     async def start_game(self) -> Any:
@@ -169,10 +175,19 @@ class Room:
     async def reorder_players(self, ids: list[int]) -> Any:
         return await self.call("reorderPlayers", ids)
 
-    async def send_announcement(self, message: str, color: int | None = None, style: str | None = None) -> Any:
-        return await self.call("sendAnnouncement", message, color, style)
+    async def send_announcement(
+        self,
+        message: str,
+        target_id: int | None = None,
+        color: int | None = None,
+        style: str | None = None,
+        sound: int | None = None,
+    ) -> Any:
+        return await self.call("sendAnnouncement", message, target_id, color, style, sound)
 
-    async def set_kick_rate_limit(self, min_value: int, rate: int, burst: int, by_player: int | None = None) -> Any:
+    async def set_kick_rate_limit(
+        self, min_value: int, rate: int, burst: int, by_player: int | None = None
+    ) -> Any:
         return await self.call("setKickRateLimit", min_value, rate, burst, by_player)
 
     async def set_player_avatar(self, player_id: int, avatar: str | None) -> Any:
@@ -195,8 +210,12 @@ class Room:
     async def get_disc_count(self) -> int:
         return await self.call("getDiscCount")
 
+    async def delete_message(self, message: str) -> Any:
+        return await self.call("deleteMessage", message)
+
     async def wait_for_room_link(self, timeout: float | None = None) -> str:
         import asyncio
+
         loop = asyncio.get_running_loop()
         end = None if timeout is None else loop.time() + timeout
         while True:

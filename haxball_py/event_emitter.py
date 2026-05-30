@@ -1,10 +1,11 @@
 from __future__ import annotations
-import asyncio
+import sys
 from collections import defaultdict
 from inspect import isawaitable
 from typing import Any, Callable
 
 Callback = Callable[..., Any]
+
 
 def normalize_event_name(name: str) -> str:
     """Translates snake_case to camelCase or vice versa, normalizing event names."""
@@ -19,6 +20,7 @@ def normalize_event_name(name: str) -> str:
         parts = name.split("_")
         return parts[0] + "".join(p.capitalize() for p in parts[1:])
     return name
+
 
 class EventEmitter:
     def __init__(self) -> None:
@@ -41,15 +43,18 @@ class EventEmitter:
         alt_norm = normalize_event_name(normalized)
         if alt_norm != normalized:
             handlers.extend(self._handlers.get(alt_norm, []))
-            
+
         for callback in handlers:
             try:
                 res = callback(*args)
                 if isawaitable(res):
                     await res
             except Exception as e:
-                # Silently fail or propagate? Since we don't want event loop to break, catch
-                pass
+                print(
+                    f"[event_emitter] Error in handler for '{event}': {e}",
+                    file=sys.stderr,
+                    flush=True,
+                )
 
     def has_listeners(self, event: str) -> bool:
         normalized = normalize_event_name(event)

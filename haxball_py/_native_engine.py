@@ -2,14 +2,14 @@ from __future__ import annotations
 import asyncio
 import json
 import subprocess
-import sys
 import tempfile
 import os
 from typing import Any, Callable, Dict
 
+
 class NativeEngine:
     """Executes HaxBall headless engine natively using a lightweight Node.js helper subprocess."""
-    
+
     def __init__(self, proxy: str | None = None, debug: bool = False) -> None:
         self.proxy = proxy
         self.debug = debug
@@ -24,11 +24,11 @@ class NativeEngine:
         # Generate the Node.js script dynamically
         from .engine.headless_min import HEADLESS_MIN_JS
         from .engine.polyfills import JSPolyfills
-        
+
         polyfills_code = JSPolyfills.generate(self.proxy, self.debug)
-        
+
         # Patch HEADLESS_MIN_JS: use globalThis.WebSocket to ensure scope visibility
-        patched_headless = HEADLESS_MIN_JS.replace('new WebSocket(', 'new globalThis.WebSocket(')
+        patched_headless = HEADLESS_MIN_JS.replace("new WebSocket(", "new globalThis.WebSocket(")
 
         node_script = f"""
         // Browser Polyfills
@@ -63,7 +63,7 @@ class NativeEngine:
             'getScores','setPassword','setRequireRecaptcha','reorderPlayers',
             'setKickRateLimit','setPlayerAvatar','setDiscProperties',
             'getDiscProperties','setPlayerDiscProperties','getPlayerDiscProperties',
-            'getDiscCount','startRecording','stopRecording'
+            'getDiscCount','startRecording','stopRecording','deleteMessage'
         ];
         
         // Wait for headless engine to resolve HBInit, then signal ready
@@ -84,7 +84,8 @@ class NativeEngine:
                         process.stdout.write(JSON.stringify({{ type: 'reply', id: req.id, error: 'HBInit not ready yet' }}) + '\\n');
                         return;
                     }}
-                    console.error('Calling HBInit_fn with config:', JSON.stringify(req.config).substring(0, 100));
+                    const safeConfig = {{...req.config, token: req.config.token ? '***' : undefined}};
+                    console.error('Calling HBInit_fn with config:', JSON.stringify(safeConfig));
                     try {{
                         room = HBInit_fn(req.config);
                         console.error('Room created successfully');
@@ -93,10 +94,23 @@ class NativeEngine:
                         process.stdout.write(JSON.stringify({{ type: 'reply', id: req.id, error: 'HBInit threw: ' + initErr.message }}) + '\\n');
                         return;
                     }}
+                    const cmdPrefix = req.config.prefix || '!';
+                    const shouldSuppressChat = (message) =>
+                        typeof message === 'string' && (
+                            message.startsWith(cmdPrefix) ||
+                            message.toLowerCase().startsWith('t ')
+                        );
                     for (const name of roomEventNames) {{
-                        room[name] = (...args) => {{
-                            process.stdout.write(JSON.stringify({{ type: 'event', name: name, args: args }}) + '\\n');
-                        }};
+                        if (name === 'onPlayerChat') {{
+                            room[name] = (player, message) => {{
+                                process.stdout.write(JSON.stringify({{ type: 'event', name: name, args: [player, message] }}) + '\\n');
+                                if (shouldSuppressChat(message)) return false;
+                            }};
+                        }} else {{
+                            room[name] = (...args) => {{
+                                process.stdout.write(JSON.stringify({{ type: 'event', name: name, args: args }}) + '\\n');
+                            }};
+                        }}
                     }}
                     process.stdout.write(JSON.stringify({{ type: 'reply', id: req.id, result: true }}) + '\\n');
                 }} else if (req.type === 'call') {{
@@ -141,14 +155,18 @@ class NativeEngine:
             }}
         }});
         """
-        
+
         # Write to a temporary file
-        self._temp_file = tempfile.NamedTemporaryFile(suffix=".js", delete=False, mode="w", encoding="utf-8")
+        self._temp_file = tempfile.NamedTemporaryFile(
+            suffix=".js", delete=False, mode="w", encoding="utf-8"
+        )
         self._temp_file.write(node_script)
         self._temp_file.close()
-        
+
         # Find node_modules path (from project dir or cwd)
-        node_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "node_modules")
+        node_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "node_modules"
+        )
         if not os.path.isdir(node_path):
             node_path = os.path.join(os.getcwd(), "node_modules")
         env = os.environ.copy()
@@ -165,12 +183,12 @@ class NativeEngine:
             bufsize=1,
             env=env,
         )
-        
+
         # Start reading stdout/stderr in background tasks
         self._ready_future = self._loop.create_future()
         asyncio.create_task(self._read_stdout())
         asyncio.create_task(self._read_stderr())
-        
+
         # Wait for engine ready signal (timeout 30s)
         try:
             await asyncio.wait_for(self._ready_future, timeout=30)
@@ -197,20 +215,28 @@ class NativeEngine:
                     if result == "error":
                         err_msg = data.get("error", "Unknown error")
                         if self._ready_future and not self._ready_future.done():
-                            self._ready_future.set_exception(RuntimeError(f"Engine init failed: {err_msg}"))
+                            self._ready_future.set_exception(
+                                RuntimeError(f"Engine init failed: {err_msg}")
+                            )
                     else:
                         if self._ready_future and not self._ready_future.done():
                             self._ready_future.set_result(True)
                 elif data.get("type") == "event":
                     name = data.get("name")
                     args = data.get("args", [])
-                    print(f"[stdout:event] {name} ({len(args)} args)", flush=True)
+                    if self.debug:
+                        print(f"[stdout:event] {name} ({len(args)} args)", flush=True)
                     callback = self._callbacks.get(name)
                     if callback:
                         asyncio.create_task(callback(*args))
                 elif data.get("type") == "reply":
                     req_id = data.get("id")
-                    print(f"[stdout:reply] id={req_id} has_result={'result' in data} error={data.get('error')}", flush=True)
+                    if self.debug:
+                        err = data.get("error")
+                        print(
+                            f"[stdout:reply] id={req_id} has_result={'result' in data} error={err}",
+                            flush=True,
+                        )
                     fut = self._pending_futures.pop(req_id, None)
                     if fut:
                         if "error" in data:
@@ -225,29 +251,48 @@ class NativeEngine:
         cmd_id = self._cmd_counter
         fut = self._loop.create_future()
         self._pending_futures[cmd_id] = fut
-        
-        payload = json.dumps({"type": "call", "id": cmd_id, "method": method, "args": list(args)}) + "\n"
+
+        payload = (
+            json.dumps({"type": "call", "id": cmd_id, "method": method, "args": list(args)}) + "\n"
+        )
         self._process.stdin.write(payload)
         self._process.stdin.flush()
         return await fut
 
-    async def init_room(self, config: dict[str, Any], event_callback: Callable[[str, list[Any]], Any]) -> None:
+    async def init_room(
+        self, config: dict[str, Any], event_callback: Callable[[str, list[Any]], Any]
+    ) -> None:
         # Register event routing callback
         for name in [
-            'onPlayerJoin', 'onPlayerLeave', 'onTeamVictory', 'onPlayerChat',
-            'onPlayerBallKick', 'onTeamGoal', 'onGameStart', 'onGameStop',
-            'onPlayerAdminChange', 'onPlayerTeamChange', 'onPlayerKicked',
-            'onGameTick', 'onGamePause', 'onGameUnpause', 'onPositionsReset',
-            'onPlayerActivity', 'onStadiumChange', 'onRoomLink',
-            'onKickRateLimitSet', 'onTeamsLockChange'
+            "onPlayerJoin",
+            "onPlayerLeave",
+            "onTeamVictory",
+            "onPlayerChat",
+            "onPlayerBallKick",
+            "onTeamGoal",
+            "onGameStart",
+            "onGameStop",
+            "onPlayerAdminChange",
+            "onPlayerTeamChange",
+            "onPlayerKicked",
+            "onGameTick",
+            "onGamePause",
+            "onGameUnpause",
+            "onPositionsReset",
+            "onPlayerActivity",
+            "onStadiumChange",
+            "onRoomLink",
+            "onKickRateLimitSet",
+            "onTeamsLockChange",
         ]:
-            self._callbacks[name] = lambda *args, n=name: event_callback(n, list(args))
-            
+            if name not in self._callbacks:
+                self._callbacks[name] = lambda *args, n=name: event_callback(n, list(args))
+
         self._cmd_counter += 1
         cmd_id = self._cmd_counter
         fut = self._loop.create_future()
         self._pending_futures[cmd_id] = fut
-        
+
         payload = json.dumps({"type": "init", "id": cmd_id, "config": config}) + "\n"
         self._process.stdin.write(payload)
         self._process.stdin.flush()
@@ -259,7 +304,8 @@ class NativeEngine:
             line = await loop.run_in_executor(None, self._process.stderr.readline)
             if not line:
                 break
-            print(f"[engine:err] {line.strip()}", flush=True)
+            if self.debug:
+                print(f"[engine] {line.strip()}", flush=True)
 
     def close(self) -> None:
         if self._process:

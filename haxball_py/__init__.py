@@ -16,6 +16,7 @@ from .disc import AbstractDisc, Disc
 from .command import Command, CommandExecInfo, CommandArgument
 from .module import Module, module, module_command, event, custom_event
 from .enums import Teams, ChatStyle, ChatSounds, Stadiums, Colors
+from .logger import RoomLogger
 from ._hbinit import HaxballJS
 
 __all__ = [
@@ -27,7 +28,6 @@ __all__ = [
     "NativePlayer",
     "Position",
     "Scores",
-    
     # Extended exports
     "RoomExtended",
     "HaxballClientExtended",
@@ -49,5 +49,5 @@ __all__ = [
     "Stadiums",
     "Colors",
     "HaxballJS",
+    "RoomLogger",
 ]
-

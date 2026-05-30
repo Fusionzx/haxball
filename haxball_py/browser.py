@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import asyncio
-import json
 from dataclasses import dataclass
 from typing import Any, Callable
 
 from playwright.async_api import Browser, BrowserContext, Page, async_playwright
 
-from .errors import HaxballBridgeError, HaxballTimeoutError
+from .errors import HaxballBridgeError
 
 
 BRIDGE_JS = r"""
@@ -29,7 +28,7 @@ BRIDGE_JS = r"""
     'getScores','setPassword','setRequireRecaptcha','reorderPlayers',
     'setKickRateLimit','setPlayerAvatar','setDiscProperties',
     'getDiscProperties','setPlayerDiscProperties','getPlayerDiscProperties',
-    'getDiscCount','startRecording','stopRecording'
+    'getDiscCount','startRecording','stopRecording','deleteMessage'
   ];
 
   const deepClone = (value) => JSON.parse(JSON.stringify(value));
@@ -77,8 +76,16 @@ class BrowserResources:
 
 
 class BrowserBridge:
-    def __init__(self, *, headless: bool, proxy_server: str | None, browser_channel: str | None,
-                 browser_executable_path: str | None, browser_args: list[str], timeout_ms: int) -> None:
+    def __init__(
+        self,
+        *,
+        headless: bool,
+        proxy_server: str | None,
+        browser_channel: str | None,
+        browser_executable_path: str | None,
+        browser_args: list[str],
+        timeout_ms: int,
+    ) -> None:
         self.headless = headless
         self.proxy_server = proxy_server
         self.browser_channel = browser_channel
@@ -92,7 +99,7 @@ class BrowserBridge:
     @property
     def page(self) -> Page:
         if not self._resources:
-            raise HaxballBridgeError('Browser not started')
+            raise HaxballBridgeError("Browser not started")
         return self._resources.page
 
     async def start(self) -> None:
@@ -101,21 +108,21 @@ class BrowserBridge:
         self._playwright = await async_playwright().start()
         chromium = self._playwright.chromium
         launch_kwargs: dict[str, Any] = {
-            'headless': self.headless,
+            "headless": self.headless,
         }
         if self.browser_channel:
-            launch_kwargs['channel'] = self.browser_channel
+            launch_kwargs["channel"] = self.browser_channel
         if self.browser_executable_path:
-            launch_kwargs['executable_path'] = self.browser_executable_path
+            launch_kwargs["executable_path"] = self.browser_executable_path
         if self.browser_args:
-            launch_kwargs['args'] = list(self.browser_args)
+            launch_kwargs["args"] = list(self.browser_args)
         if self.proxy_server:
-            launch_kwargs['proxy'] = {'server': self.proxy_server}
+            launch_kwargs["proxy"] = {"server": self.proxy_server}
 
         browser = await chromium.launch(**launch_kwargs)
         context = await browser.new_context()
         page = await context.new_page()
-        await page.expose_binding('haxpy_emit', self._emit_from_js)
+        await page.expose_binding("haxpy_emit", self._emit_from_js)
         await page.add_init_script(BRIDGE_JS)
         self._resources = BrowserResources(browser=browser, context=context, page=page)
 
@@ -133,8 +140,10 @@ class BrowserBridge:
 
     async def goto_headless_host(self, url: str) -> None:
         page = self.page
-        await page.goto(url, wait_until='domcontentloaded', timeout=self.timeout_ms)
-        await page.wait_for_function('() => typeof window.HBInit === "function"', timeout=self.timeout_ms)
+        await page.goto(url, wait_until="domcontentloaded", timeout=self.timeout_ms)
+        await page.wait_for_function(
+            '() => typeof window.HBInit === "function"', timeout=self.timeout_ms
+        )
 
     async def create_room(self, config: dict[str, Any]) -> None:
         page = self.page
@@ -144,7 +153,7 @@ class BrowserBridge:
               return window.__haxpy.makeRoom(config);
             }
             """,
-            {'config': config},
+            {"config": config},
         )
 
     async def call(self, method: str, *args: Any) -> Any:
@@ -154,7 +163,7 @@ class BrowserBridge:
               return await window.__haxpy.call(method, args);
             }
             """,
-            {'method': method, 'args': list(args)},
+            {"method": method, "args": list(args)},
         )
 
     def set_emit_callback(self, callback: Callable[[str, list[Any]], Any]) -> None:
@@ -163,8 +172,8 @@ class BrowserBridge:
     async def _emit_from_js(self, source: Any, payload: dict[str, Any]) -> None:
         if not self._emit_callback:
             return
-        event = payload.get('event')
-        args = payload.get('args', [])
+        event = payload.get("event")
+        args = payload.get("args", [])
         maybe = self._emit_callback(event, args)
         if asyncio.iscoroutine(maybe):
             await maybe

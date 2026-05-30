@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from inspect import isawaitable
-from typing import Any, Awaitable, Callable
+from typing import Any, Callable
 
 Callback = Callable[..., Any]
 

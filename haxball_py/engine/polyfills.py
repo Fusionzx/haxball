@@ -1,5 +1,6 @@
 # engine/polyfills.py
 
+
 class JSPolyfills:
     @staticmethod
     def generate(proxy: str | None = None, debug: bool = False) -> str:
@@ -10,7 +11,7 @@ class JSPolyfills:
             else "let proxyAgent;"
         )
         debug_js = "true" if debug else "false"
-        return f'''
+        return f"""
 globalThis.window = globalThis;
 globalThis.parent = globalThis;
 
@@ -83,4 +84,4 @@ try {{
 }} catch (e) {{
     console.error("node-datachannel not available, WebRTC will not work:", e.message);
 }}
-'''
+"""
