@@ -1,6 +1,6 @@
 import asyncio
-from haxball_py import HaxballConfig, Teams
-from haxball_py.extended import HaxballClientExtended, RoomExtended
+from haxball_py import HaxballConfig
+from haxball_py.extended import HaxballClientExtended
 from haxball_py.module import Module, module, module_command, event
 from haxball_py.command import CommandExecInfo
 from haxball_py.player import Player
@@ -17,6 +17,10 @@ class AdminModule(Module):
     async def on_player_join(self, player: Player):
         self.room.send(f"Welcome to the room, {player.name}!", color=0x00FFFF)
 
+    @event
+    async def on_player_leave(self, player: Player):
+        self.room.send(f"Goodbye, {player.name}!", color=0xFF0000)
+
 
 async def main():
     config = HaxballConfig(
@@ -25,16 +29,38 @@ async def main():
         max_players=10,
         public=False,
         no_player=False,
-        token="thr1.AAAAAGe1eN8P-B1H9W7O4A.YOUR_TOKEN_HERE", # Placeholder token
         headless=True
     )
 
     client = HaxballClientExtended()
-    
-    # We can catch errors or run it, but since token is placeholder, we won't run it here.
-    # We will just instantiate client and log that it's configured.
-    print("Extended client and modules loaded successfully!")
+    room = await client.init(config)
+    room.module(AdminModule)
+
+    @room.native.on_room_link
+    def on_link(url: str):
+        print("room link:", url)
+
+    await room.native.set_default_stadium("Big")
+    await room.native.set_score_limit(5)
+    await room.native.set_time_limit(0)
+
+    print("Waiting for room link (timeout 120s)...")
+    try:
+        link = await room.native.wait_for_room_link(timeout=120)
+        print(f"Room ready! Link: {link}", flush=True)
+    except TimeoutError:
+        print("Timeout waiting for room link", flush=True)
+
+    print("Extended room running. Press Ctrl+C to exit.", flush=True)
+    try:
+        while True:
+            await asyncio.sleep(1)
+    except KeyboardInterrupt:
+        print("\nShutting down...")
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        pass

@@ -1,4 +1,5 @@
 from __future__ import annotations
+import asyncio
 import inspect
 from datetime import datetime
 from typing import Any, Awaitable, Callable, Type
@@ -39,8 +40,15 @@ class RoomExtended:
         self._no_permission_message: str | None = None
         self._no_permission_color: int | None = None
 
-        # Intercept event handling on the bridge
-        self.native._bridge.set_emit_callback(self._handle_extended_js_event)
+        # Intercept event handling
+        bridge = getattr(self.native, "_bridge", None)
+        if bridge is not None:
+            bridge.set_emit_callback(self._handle_extended_js_event)
+        else:
+            engine = getattr(self.native, "_engine", None)
+            if engine is not None:
+                for name in self.native._EVENTS.values():
+                    engine._callbacks[name] = lambda *args, n=name: self._handle_extended_js_event(n, list(args))
 
     @property
     def room_link(self) -> str | None:

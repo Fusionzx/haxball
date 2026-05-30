@@ -21,6 +21,17 @@ BRIDGE_JS = r"""
     'onKickRateLimitSet', 'onTeamsLockChange'
   ];
 
+  const ALLOWED_METHODS = [
+    'sendChat','sendAnnouncement','setPlayerAdmin','setPlayerTeam',
+    'kickPlayer','clearBan','clearBans','setScoreLimit','setTimeLimit',
+    'setDefaultStadium','setCustomStadium','setTeamsLock','setTeamColors',
+    'startGame','stopGame','pauseGame','getPlayer','getPlayerList',
+    'getScores','setPassword','setRequireRecaptcha','reorderPlayers',
+    'setKickRateLimit','setPlayerAvatar','setDiscProperties',
+    'getDiscProperties','setPlayerDiscProperties','getPlayerDiscProperties',
+    'getDiscCount','startRecording','stopRecording'
+  ];
+
   const deepClone = (value) => JSON.parse(JSON.stringify(value));
 
   window.__haxpy = {
@@ -43,8 +54,9 @@ BRIDGE_JS = r"""
     async call(method, args) {
       const room = window.__haxpy.room;
       if (!room) throw new Error('Room not initialized');
+      if (!ALLOWED_METHODS.includes(method)) throw new Error('Method not allowed: ' + method);
       const fn = room[method];
-      if (typeof fn !== 'function') throw new Error(`Unknown room method: ${method}`);
+      if (typeof fn !== 'function') throw new Error('Unknown room method: ' + method);
       const result = fn.apply(room, args);
       if (result && typeof result.then === 'function') return await result;
       return result;

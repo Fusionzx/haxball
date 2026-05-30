@@ -12,13 +12,16 @@ async def main() -> None:
                 max_players=16,
                 public=False,
                 no_player=True,
-                token="thr1.AAAAAGn_vx91Kshv9cHK4A.AhEcpBdVT1U",
             )
         )
 
         @room.on_player_join
         def on_join(player):
             print(f"join: {player.id} {player.name}")
+
+        @room.on_player_leave
+        def on_leave(player):
+            print(f"leave: {player.id} {player.name}")
 
         @room.on_room_link
         def on_link(url: str):

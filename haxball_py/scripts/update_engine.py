@@ -3,57 +3,130 @@ import os
 import re
 import urllib.request
 
+
+def nodeify_source(source: str) -> str:
+    """Apply Node-ification transforms like haxball.js's nodeify.ts."""
+    # 1. Remove window. / parent. / document. references
+    replacements = {
+        "window.": "",
+        "parent.": "",
+        "document.": "",
+        ".innerHTML": "",
+        'getElementById("roomlink")': "null",
+        'getElementById("recaptcha")': "null",
+    }
+    for old, new in replacements.items():
+        source = source.replace(old, new)
+
+    # 2. Wrap HBInit assignment with promiseResolve
+    # Pattern: HBInit = <expression>;
+    hb_match = re.search(r"HBInit\s*=\s*.+?;", source)
+    if hb_match:
+        assignment = hb_match.group(0)
+        # Find the = sign and extract RHS (handle optional whitespace)
+        eq_pos = assignment.index("=")
+        rhs = assignment[eq_pos + 1:-1].strip()
+        source = source.replace(
+            assignment,
+            f"promiseResolve({rhs});",
+        )
+    else:
+        print("WARNING: Could not find HBInit assignment pattern")
+
+    # 3. WebSocket: add proxy agent and origin header
+    ws_match = re.search(r"new WebSocket\([^)]+\);", source)
+    if ws_match:
+        ws_call = ws_match.group(0)
+        # Replace with version that has headers and agent
+        new_ws = re.sub(
+            r"new WebSocket\(([^)]+)\);",
+            r'new WebSocket(\1, {headers:{origin: "https://html5.haxball.com"}, agent: proxyAgent});',
+            ws_call,
+        )
+        source = source.replace(ws_call, new_ws)
+
+    # 4. WebSocket onerror: add debug logging
+    ws_err_pattern = re.compile(
+        r"([a-zA-Z_$][\w$]*)\.([a-zA-Z_$][\w$]*)\.onerror\s*=\s*function\s*\(\)\s*\{([a-zA-Z_$][\w$]*)\.([a-zA-Z_$][\w$]*)\(!0\)\}"
+    )
+    ws_err_match = ws_err_pattern.search(source)
+    if ws_err_match:
+        full = ws_err_match.group(0)
+        obj_name = ws_err_match.group(1)
+        ws_prop = ws_err_match.group(2)
+        method_obj = ws_err_match.group(3)
+        method_name = ws_err_match.group(4)
+        debug_code = f"{obj_name}.{ws_prop}.onerror=function(err){{{method_obj}.{method_name}(!0);debug&&console.error(err)}}"
+        source = source.replace(full, debug_code)
+
+    # 5. Recaptcha error: replace with console.log
+    recaptcha_pattern = re.compile(r'case\s+"recaptcha":([a-zA-Z_$][\w$]*)\(([^)]+)\)')
+    recaptcha_match = recaptcha_pattern.search(source)
+    if recaptcha_match:
+        full = recaptcha_match.group(0)
+        source = source.replace(
+            full,
+            'case "recaptcha":console.error("Invalid Token Provided!")',
+        )
+
+    # 6. Compress whitespace (optional, matching haxball.js style)
+    source = re.sub(r"\s+", " ", source)
+
+    return source
+
+
 def main():
     print("Updating HaxBall Headless Engine...")
     try:
-        # 1. Get cache hash with User-Agent header to avoid 403
+        # 1. Get cache hash
         req_hash = urllib.request.Request(
             "https://www.haxball.com/cache_hash.json",
-            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
         )
         with urllib.request.urlopen(req_hash) as response:
             raw_content = response.read().decode("utf-8").strip()
             hash_data = json.loads(raw_content)
-            if isinstance(hash_data, dict):
-                cache_hash = hash_data.get("hash")
-            else:
-                cache_hash = hash_data
-        
+            cache_hash = hash_data.get("hash") if isinstance(hash_data, dict) else hash_data
+
         if not cache_hash:
             raise ValueError("Could not find hash in cache_hash.json")
-            
+
         print(f"Latest cache hash: {cache_hash}")
-        
+
         # 2. Download headless-min.js
         url = f"https://www.haxball.com/{cache_hash}/__cache_static__/g/headless-min.js"
         print(f"Downloading from: {url}")
         req_js = urllib.request.Request(
             url,
-            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
         )
         with urllib.request.urlopen(req_js) as response:
             js_code = response.read().decode("utf-8")
-            
-        # 3. Apply Nodeify-like transformations to run in QuickJS / Node/Python environments
-        # Replace window and document references where needed
-        js_code = js_code.replace("typeof window", "typeof globalThis")
-        js_code = js_code.replace("window.crypto", "globalThis.crypto")
-        js_code = js_code.replace("window.WebSocket", "globalThis.WebSocket")
-        js_code = js_code.replace("window.XMLHttpRequest", "globalThis.XMLHttpRequest")
-        
-        # 4. Save to headless_min.py
+
+        # 3. Apply Node-ification transforms
+        js_code = nodeify_source(js_code)
+
+        # 4. Verify HBInit is properly wrapped
+        if "promiseResolve" not in js_code:
+            print("WARNING: promiseResolve not injected - engine may not work")
+
+        # 5. Save to headless_min.py
         target_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "engine")
         os.makedirs(target_dir, exist_ok=True)
-        
+
         target_file = os.path.join(target_dir, "headless_min.py")
         with open(target_file, "w", encoding="utf-8") as f:
             f.write("# Auto-generated by update_engine.py\n")
             f.write(f"HASH = {repr(cache_hash)}\n")
             f.write(f"HEADLESS_MIN_JS = {repr(js_code)}\n")
-            
+
         print(f"Engine updated successfully and saved to {target_file}!")
+        print(f"Final size: {len(js_code)} bytes")
+        print(f"promiseResolve: {'✓' if 'promiseResolve' in js_code else '✗'}")
+
     except Exception as e:
         print(f"Error updating engine: {e}")
+
 
 if __name__ == "__main__":
     main()
