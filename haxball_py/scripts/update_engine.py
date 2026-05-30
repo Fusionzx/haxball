@@ -6,8 +6,12 @@ import urllib.request
 def main():
     print("Updating HaxBall Headless Engine...")
     try:
-        # 1. Get cache hash
-        with urllib.request.urlopen("https://www.haxball.com/cache_hash.json") as response:
+        # 1. Get cache hash with User-Agent header to avoid 403
+        req_hash = urllib.request.Request(
+            "https://www.haxball.com/cache_hash.json",
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+        )
+        with urllib.request.urlopen(req_hash) as response:
             hash_data = json.loads(response.read().decode("utf-8"))
             cache_hash = hash_data.get("hash")
         
@@ -19,7 +23,11 @@ def main():
         # 2. Download headless-min.js
         url = f"https://www.haxball.com/{cache_hash}/__cache_static__/g/headless-min.js"
         print(f"Downloading from: {url}")
-        with urllib.request.urlopen(url) as response:
+        req_js = urllib.request.Request(
+            url,
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+        )
+        with urllib.request.urlopen(req_js) as response:
             js_code = response.read().decode("utf-8")
             
         # 3. Apply Nodeify-like transformations to run in QuickJS / Node/Python environments
