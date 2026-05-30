@@ -315,3 +315,15 @@ class HaxballClientExtended(HaxballClient):
         extended_room = RoomExtended(native_room, config)
         self._room = extended_room
         return extended_room
+
+    async def init(self, config: HaxballConfig | dict[str, Any]) -> RoomExtended:
+        if isinstance(config, dict):
+            token = config.get("token")
+            if not token or "YOUR_TOKEN" in str(token):
+                config["token"] = input("Please enter your HaxBall token: ").strip()
+            config = HaxballConfig.model_validate(config)
+        elif isinstance(config, HaxballConfig):
+            if not config.token or "YOUR_TOKEN" in config.token:
+                config.token = input("Please enter your HaxBall token: ").strip()
+        return await self.start(config)
+
