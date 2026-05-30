@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "haxball-py"
+version = "0.1.0"
+description = "Python bridge for the HaxBall Headless Host API"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "playwright>=1.50.0",
+  "pydantic>=2.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "ruff>=0.5.0",
+  "pytest>=8.0.0",
+  "pytest-asyncio>=0.23.0",
+]
+
+[tool.setuptools]
+packages = ["haxball_py"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"

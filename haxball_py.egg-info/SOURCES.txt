@@ -1,0 +1,15 @@
+README.md
+pyproject.toml
+haxball_py/__init__.py
+haxball_py/browser.py
+haxball_py/client.py
+haxball_py/config.py
+haxball_py/errors.py
+haxball_py/events.py
+haxball_py/models.py
+haxball_py/room.py
+haxball_py.egg-info/PKG-INFO
+haxball_py.egg-info/SOURCES.txt
+haxball_py.egg-info/dependency_links.txt
+haxball_py.egg-info/requires.txt
+haxball_py.egg-info/top_level.txt
