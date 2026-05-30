@@ -47,6 +47,7 @@ class NativeEngine:
         
         let room = null;
         let HBInit_fn = null;
+        let bareCommandNames = new Set();
         const roomEventNames = [
             'onPlayerJoin', 'onPlayerLeave', 'onTeamVictory', 'onPlayerChat',
             'onPlayerBallKick', 'onTeamGoal', 'onGameStart', 'onGameStop',
@@ -98,7 +99,7 @@ class NativeEngine:
                     const shouldSuppressChat = (message) =>
                         typeof message === 'string' && (
                             message.startsWith(cmdPrefix) ||
-                            message.toLowerCase().startsWith('t ')
+                            bareCommandNames.has(message.split(' ')[0].toLowerCase())
                         );
                     for (const name of roomEventNames) {{
                         if (name === 'onPlayerChat') {{
@@ -116,6 +117,11 @@ class NativeEngine:
                 }} else if (req.type === 'call') {{
                     if (!room) {{
                         process.stdout.write(JSON.stringify({{ type: 'reply', id: req.id, error: 'Room not initialized' }}) + '\\n');
+                        return;
+                    }}
+                    if (req.method === 'setBareCommandNames') {{
+                        bareCommandNames = new Set((req.args[0] || []).map(name => String(name).toLowerCase()));
+                        process.stdout.write(JSON.stringify({{ type: 'reply', id: req.id, result: true }}) + '\\n');
                         return;
                     }}
                     if (!ALLOWED_METHODS.includes(req.method)) {{
@@ -258,6 +264,9 @@ class NativeEngine:
         self._process.stdin.write(payload)
         self._process.stdin.flush()
         return await fut
+
+    async def set_bare_command_names(self, names: list[str]) -> Any:
+        return await self.call("setBareCommandNames", names)
 
     async def init_room(
         self, config: dict[str, Any], event_callback: Callable[[str, list[Any]], Any]

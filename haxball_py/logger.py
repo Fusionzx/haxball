@@ -30,7 +30,7 @@ class RoomLogger:
         14:30:15  Fusion2 has joined
         14:30:20  Fusion2 has left
         14:31:00  Game started
-        14:31:05  Fusion2: "hello everyone"
+        14:31:05  Fusion2: hello everyone
     """
 
     _SKIP = {"game_tick", "player_activity", "player_ball_kick", "positions_reset", "team_goal"}
@@ -63,7 +63,7 @@ class RoomLogger:
         print(f"{_ts()}  {player.name} has left", flush=True)
 
     def _on_player_chat(self, player: Player, message: str) -> None:
-        print(f'{_ts()}  {player.name}: "{message}"', flush=True)
+        print(f"{_ts()}  {player.name}: {message}", flush=True)
 
     def _on_player_admin_change(self, changed_player: Player, by_player: Any = None) -> None:
         who = f" by {_pname(by_player)}" if by_player else ""

@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from urllib.parse import urlparse
 import urllib.request
 
 
@@ -75,15 +76,23 @@ def nodeify_source(source: str) -> str:
     return source
 
 
+def _https_request(url: str) -> urllib.request.Request:
+    parsed = urlparse(url)
+    if parsed.scheme != "https" or parsed.netloc != "www.haxball.com":
+        raise ValueError(f"Refusing to download from unexpected URL: {url}")
+    return urllib.request.Request(
+        url,
+        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
+    )
+
+
 def main():
     print("Updating HaxBall Headless Engine...")
     try:
         # 1. Get cache hash
-        req_hash = urllib.request.Request(
-            "https://www.haxball.com/cache_hash.json",
-            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
-        )
-        with urllib.request.urlopen(req_hash) as response:
+        req_hash = _https_request("https://www.haxball.com/cache_hash.json")
+        # URL is validated by _https_request.
+        with urllib.request.urlopen(req_hash) as response:  # nosec B310
             raw_content = response.read().decode("utf-8").strip()
             hash_data = json.loads(raw_content)
             cache_hash = hash_data.get("hash") if isinstance(hash_data, dict) else hash_data
@@ -96,11 +105,9 @@ def main():
         # 2. Download headless-min.js
         url = f"https://www.haxball.com/{cache_hash}/__cache_static__/g/headless-min.js"
         print(f"Downloading from: {url}")
-        req_js = urllib.request.Request(
-            url,
-            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
-        )
-        with urllib.request.urlopen(req_js) as response:
+        req_js = _https_request(url)
+        # URL is validated by _https_request.
+        with urllib.request.urlopen(req_js) as response:  # nosec B310
             js_code = response.read().decode("utf-8")
 
         # 3. Apply Node-ification transforms

@@ -29,8 +29,8 @@ def test_native_engine_source_has_delete_message():
     assert "message.startsWith(cmdPrefix)" in source, (
         "deleteMessage: onPlayerChat must check for cmdPrefix"
     )
-    assert "message.toLowerCase().startsWith('t ')" in source, (
-        "deleteMessage: onPlayerChat must hide the extended room t command"
+    assert "bareCommandNames.has(message.split(' ')[0].toLowerCase())" in source, (
+        "deleteMessage: onPlayerChat must hide configured bare extended commands"
     )
     assert "return false" in source, "deleteMessage: onPlayerChat must return false for commands"
 

@@ -196,12 +196,31 @@ class RoomExtended:
             delete_message=delete_message,
         )
         self.commands.append(cmd)
+        self._sync_bare_commands()
 
     def remove_command(self, name: str) -> None:
         """Unregisters a command by name or alias."""
         self.commands = [
             cmd for cmd in self.commands if cmd.name != name and name not in cmd.aliases
         ]
+        self._sync_bare_commands()
+
+    def _bare_command_names(self) -> set[str]:
+        names: set[str] = set()
+        for cmd in self.commands:
+            for name in [cmd.name, *cmd.aliases]:
+                if len(name) == 1:
+                    names.add(name.lower())
+        return names
+
+    def _sync_bare_commands(self) -> None:
+        engine = getattr(self.native, "_engine", None)
+        if engine is None:
+            return
+        try:
+            asyncio.create_task(engine.set_bare_command_names(sorted(self._bare_command_names())))
+        except RuntimeError:
+            pass
 
     def module(self, mod_cls: Type[Module], options: dict[str, Any] | None = None) -> RoomExtended:
         """Loads and registers a :class:`Module`.
@@ -484,14 +503,16 @@ class RoomExtended:
             raw_player = args[0]
             message = args[1]
             player_obj = self.players.get(raw_player["id"])
-            if player_obj and (
-                message.startswith(self.prefix) or message.lower().startswith("t ")
-            ):
+            parts = []
+            if message.startswith(self.prefix):
+                parts = message[len(self.prefix) :].split(" ")
+            elif isinstance(message, str):
+                split_message = message.split(" ")
+                if split_message and split_message[0].lower() in self._bare_command_names():
+                    parts = split_message
+
+            if player_obj and parts:
                 is_command = True
-                if message.startswith(self.prefix):
-                    parts = message[len(self.prefix) :].split(" ")
-                else:
-                    parts = message.split(" ")
                 cmd_name = parts[0]
                 cmd_args = parts[1:]
 
