@@ -93,7 +93,6 @@ class AdminModule(Module):
     @module_command(name="adm", usage="adm", desc="Obter administrador", roles=[])
     async def claim_admin(self, info: CommandExecInfo):
         info.player.admin = True
-        await info.room.native.set_player_admin(info.player.id, True)
         info.player.reply("Agora você é administrador!", color=0x00FF00)
 
     @event
@@ -122,7 +121,7 @@ async def main():
     def on_link(url: str):
         print("room link:", url)
 
-    await room.native.set_default_stadium("Big")
+    room.set_stadium("Big")
     await room.native.set_score_limit(5)
     await room.native.set_time_limit(0)
 

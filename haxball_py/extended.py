@@ -202,6 +202,56 @@ class RoomExtended:
         scores = await self.get_scores()
         return scores is not None
 
+    @property
+    async def scores(self) -> Scores | None:
+        return await self.native.get_scores()
+
+    @property
+    async def ball(self) -> Disc | None:
+        import math
+        count = await self.native.get_disc_count()
+        if count is None or count == 0:
+            return None
+        props = await self.native.get_disc_properties(0)
+        if props is None:
+            return None
+        return Disc(index=0, room=self, x=props.x, y=props.y, xspeed=props.xspeed, yspeed=props.yspeed,
+                    radius=props.radius, b_coeff=props.bCoef, inv_mass=props.invMass, damping=props.damping,
+                    c_mask=props.cMask, c_group=props.cGroup, color=props.color)
+
+    @property
+    def password(self) -> str | None:
+        return self._password if hasattr(self, "_password") else None
+    @password.setter
+    def password(self, value: str | None) -> None:
+        self._password = value
+        if value is None:
+            asyncio.create_task(self.native.set_password(None))
+        else:
+            asyncio.create_task(self.native.set_password(value))
+
+    def clear_password(self) -> None:
+        self._password = None
+        asyncio.create_task(self.native.set_password(None))
+
+    def unban(self, player_id: int) -> None:
+        asyncio.create_task(self.native.clear_ban(player_id))
+
+    def unban_all(self) -> None:
+        asyncio.create_task(self.native.clear_bans())
+
+    def start(self) -> None:
+        asyncio.create_task(self.native.start_game())
+
+    def stop(self) -> None:
+        asyncio.create_task(self.native.stop_game())
+
+    def pause(self) -> None:
+        asyncio.create_task(self.native.pause_game(True))
+
+    def unpause(self) -> None:
+        asyncio.create_task(self.native.pause_game(False))
+
     async def _handle_extended_js_event(self, event_name: str, args: list[Any]) -> None:
         # 1. Sync local cache first
         player_obj = None
