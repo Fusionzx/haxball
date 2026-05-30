@@ -296,25 +296,54 @@ class RoomExtended:
 
 
 class HaxballClientExtended(HaxballClient):
+    def __init__(self, backend: str = "auto") -> None:
+        super().__init__()
+        self.backend = backend
+        self._engine: Any = None
+
     async def start(self, config: HaxballConfig) -> RoomExtended:
-        bridge = ExtendedBrowserBridge(
-            headless=config.headless,
-            proxy_server=config.proxy_server,
-            browser_channel=config.browser_channel,
-            browser_executable_path=config.browser_executable_path,
-            browser_args=config.browser_args,
-            timeout_ms=config.timeout_ms,
-        )
-        await bridge.start()
-        await bridge.goto_headless_host(config.headless_host_url)
-        await bridge.create_room(config.to_hbinit_config())
-        
-        native_room = Room(bridge)
-        self._bridge = bridge
-        
-        extended_room = RoomExtended(native_room, config)
-        self._room = extended_room
-        return extended_room
+        # Determine backend to use
+        use_native = False
+        if self.backend == "native":
+            use_native = True
+        elif self.backend == "auto":
+            try:
+                import subprocess
+                subprocess.run(["node", "--version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+                use_native = True
+            except Exception:
+                use_native = False
+
+        if use_native:
+            from ._native_engine import NativeEngine
+            from .room_native import RoomNative
+            engine = NativeEngine(proxy=config.proxy_server, debug=True)
+            await engine.start()
+            self._engine = engine
+            native_room = RoomNative(engine)
+            await engine.init_room(config.to_hbinit_config(), native_room._handle_js_event)
+            extended_room = RoomExtended(native_room, config)
+            self._room = extended_room
+            return extended_room
+        else:
+            bridge = ExtendedBrowserBridge(
+                headless=config.headless,
+                proxy_server=config.proxy_server,
+                browser_channel=config.browser_channel,
+                browser_executable_path=config.browser_executable_path,
+                browser_args=config.browser_args,
+                timeout_ms=config.timeout_ms,
+            )
+            await bridge.start()
+            await bridge.goto_headless_host(config.headless_host_url)
+            await bridge.create_room(config.to_hbinit_config())
+            
+            native_room = Room(bridge)
+            self._bridge = bridge
+            
+            extended_room = RoomExtended(native_room, config)
+            self._room = extended_room
+            return extended_room
 
     async def init(self, config: HaxballConfig | dict[str, Any]) -> RoomExtended:
         if isinstance(config, dict):
@@ -326,4 +355,11 @@ class HaxballClientExtended(HaxballClient):
             if not config.token or "YOUR_TOKEN" in config.token:
                 config.token = input("Please enter your HaxBall token: ").strip()
         return await self.start(config)
+
+    async def close(self) -> None:
+        await super().close()
+        if self._engine is not None:
+            self._engine.close()
+            self._engine = None
+
 
