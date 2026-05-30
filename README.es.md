@@ -1,4 +1,4 @@
-# haxball.py
+# ⚽ haxball.py
 
 > Un puente fiel y tipado para la API oficial de HaxBall Headless Host.
 
@@ -8,7 +8,7 @@ Controla una sala headless real de HaxBall desde Python usando Playwright. Sin i
 
 ---
 
-## Características
+## ✨ Características
 
 - **Tres capas de API** — elige tu nivel de abstracción:
   - **Native** — llamadas `HBInit` puras, máximo control
@@ -22,14 +22,14 @@ Controla una sala headless real de HaxBall desde Python usando Playwright. Sin i
 
 ---
 
-## Instalación
+## 📦 Instalación
 
 ```bash
 pip install haxball-py
 playwright install chromium
 ```
 
-### Requisitos
+### 📋 Requisitos
 
 - Python 3.10+
 - Playwright 1.50+
@@ -37,9 +37,9 @@ playwright install chromium
 
 ---
 
-## Inicio Rápido
+## 🚀 Inicio Rápido
 
-### Sala Básica
+### 🏟️ Sala Básica
 
 ```python
 import asyncio
@@ -78,7 +78,7 @@ async def main():
 asyncio.run(main())
 ```
 
-### Sala Extendida (Módulos y Comandos)
+### 🔌 Sala Extendida (Módulos y Comandos)
 
 ```python
 import asyncio
@@ -132,7 +132,7 @@ async def main():
 asyncio.run(main())
 ```
 
-### Motor Nativo (HBInit Puro)
+### ⚡ Motor Nativo (HBInit Puro)
 
 ```python
 import asyncio
@@ -171,7 +171,7 @@ asyncio.run(main())
 
 ---
 
-## Arquitectura
+## 🏗️ Arquitectura
 
 ```
 ┌─────────────────────────────────────────┐
@@ -191,9 +191,9 @@ El proyecto respeta el host headless oficial de HaxBall como única fuente de ve
 
 ---
 
-## Referencia de Configuración
+## ⚙️ Referencia de Configuración
 
-### `HaxballConfig`
+### ⚙️ `HaxballConfig`
 
 | Campo | Tipo | Defecto | Descripción |
 |---|---|---|---|
@@ -213,7 +213,7 @@ El proyecto respeta el host headless oficial de HaxBall como única fuente de ve
 | `timeout_ms` | `int` | `30000` | Tiempo de espera del navegador |
 | `headless_host_url` | `str` | `https://html5.haxball.com/headless` | URL del host headless |
 
-### `GeoConfig`
+### 🌍 `GeoConfig`
 
 | Campo | Tipo | Defecto |
 |---|---|---|
@@ -223,9 +223,9 @@ El proyecto respeta el host headless oficial de HaxBall como única fuente de ve
 
 ---
 
-## API de Sala
+## 🛠️ API de Sala
 
-### Métodos
+### 📡 Métodos
 
 | Python | JS | Descripción |
 |---|---|---|
@@ -260,7 +260,7 @@ El proyecto respeta el host headless oficial de HaxBall como única fuente de ve
 | `get_disc_count()` → `int` | `getDiscCount` | Total de discos |
 | `wait_for_room_link(timeout?)` → `str` | — | Espera hasta obtener el enlace |
 
-### Eventos
+### 🔔 Eventos
 
 | Python | JS | Payload |
 |---|---|---|
@@ -287,7 +287,7 @@ El proyecto respeta el host headless oficial de HaxBall como única fuente de ve
 
 ---
 
-## API Extendida
+## 🔌 API Extendida
 
 La capa `HaxballClientExtended` / `RoomExtended` añade:
 
@@ -300,7 +300,7 @@ La capa `HaxballClientExtended` / `RoomExtended` añade:
 
 ---
 
-## Desarrollo
+## 🧪 Desarrollo
 
 ```bash
 git clone https://github.com/yourusername/haxball.py
@@ -313,7 +313,7 @@ pytest
 
 ---
 
-## Licencia
+## 📄 Licencia
 
 Este proyecto es un wrapper alrededor de la API oficial de HaxBall Headless Host. No está afiliado ni respaldado por HaxBall.
 

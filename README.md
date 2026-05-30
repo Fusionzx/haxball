@@ -1,4 +1,4 @@
-# haxball.py
+# ⚽ haxball.py
 
 > A faithful, type-safe Python bridge for the official HaxBall Headless Host API.
 
@@ -8,7 +8,7 @@ Drive a real HaxBall headless room from Python using Playwright. No reverse-engi
 
 ---
 
-## Features
+## ✨ Features
 
 - **Three API layers** — choose your abstraction level:
   - **Native** — raw `HBInit` calls, maximum control
@@ -22,14 +22,14 @@ Drive a real HaxBall headless room from Python using Playwright. No reverse-engi
 
 ---
 
-## Installation
+## 📦 Installation
 
 ```bash
 pip install haxball-py
 playwright install chromium
 ```
 
-### Requirements
+### 📋 Requirements
 
 - Python 3.10+
 - Playwright 1.50+
@@ -37,9 +37,9 @@ playwright install chromium
 
 ---
 
-## Quick Start
+## 🚀 Quick Start
 
-### Basic Room
+### 🏟️ Basic Room
 
 ```python
 import asyncio
@@ -78,7 +78,7 @@ async def main():
 asyncio.run(main())
 ```
 
-### Extended Room (Modules & Commands)
+### 🔌 Extended Room (Modules & Commands)
 
 ```python
 import asyncio
@@ -132,7 +132,7 @@ async def main():
 asyncio.run(main())
 ```
 
-### Native Engine (Raw HBInit)
+### ⚡ Native Engine (Raw HBInit)
 
 ```python
 import asyncio
@@ -171,7 +171,7 @@ asyncio.run(main())
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
 ```
 ┌─────────────────────────────────────────┐
@@ -191,9 +191,9 @@ The project respects the official HaxBall headless host as the single source of 
 
 ---
 
-## Configuration Reference
+## ⚙️ Configuration Reference
 
-### `HaxballConfig`
+### ⚙️ `HaxballConfig`
 
 | Field | Type | Default | Description |
 |---|---|---|---|
@@ -213,7 +213,7 @@ The project respects the official HaxBall headless host as the single source of 
 | `timeout_ms` | `int` | `30000` | Browser operation timeout |
 | `headless_host_url` | `str` | `https://html5.haxball.com/headless` | Headless host URL |
 
-### `GeoConfig`
+### 🌍 `GeoConfig`
 
 | Field | Type | Default |
 |---|---|---|
@@ -223,9 +223,9 @@ The project respects the official HaxBall headless host as the single source of 
 
 ---
 
-## Room API
+## 🛠️ Room API
 
-### Methods
+### 📡 Methods
 
 All methods return `Any` (the JSON-decoded result from the JS host).
 
@@ -262,7 +262,7 @@ All methods return `Any` (the JSON-decoded result from the JS host).
 | `get_disc_count()` → `int` | `getDiscCount` | Total disc count |
 | `wait_for_room_link(timeout?)` → `str` | — | Blocks until the room link is available |
 
-### Events
+### 🔔 Events
 
 | Python event | JS event | Payload |
 |---|---|---|
@@ -303,7 +303,7 @@ Both sync and async callbacks are supported.
 
 ---
 
-## Extended API
+## 🔌 Extended API
 
 The `HaxballClientExtended` / `RoomExtended` layer adds:
 
@@ -314,7 +314,7 @@ The `HaxballClientExtended` / `RoomExtended` layer adds:
 - **Disc abstraction** — `Disc` wrapper with physics property management
 - **Logging** — automatic chat logging
 
-### Module Example
+### 📦 Module Example
 
 ```python
 from haxball_py.module import Module, module, module_command, event
@@ -332,7 +332,7 @@ class MyModule(Module):
 
 ---
 
-## Native Engine
+## ⚡ Native Engine
 
 The native engine (`HaxballJS`) is a thin wrapper that obtains the `HBInit` function from the HaxBall page and exposes it as a Python callable. This is the lowest-level API — you pass the exact same object you would pass in JavaScript.
 
@@ -347,17 +347,17 @@ The returned `room` object mirrors the JS `RoomObject` — it has the same metho
 
 ---
 
-## Error Handling
+## 🐛 Error Handling
 
-### `HaxballBridgeError`
+### ❌ `HaxballBridgeError`
 
 Raised when communication with the browser fails (timeout, crash, etc.).
 
-### `HaxballTimeoutError`
+### ⏰ `HaxballTimeoutError`
 
 Raised when a browser operation exceeds the configured timeout.
 
-### Example
+### 💡 Example
 
 ```python
 from haxball_py.errors import HaxballBridgeError
@@ -370,13 +370,13 @@ except HaxballBridgeError as e:
 
 ---
 
-## Compatibility
+## ✅ Compatibility
 
-### Implemented Methods
+### 📋 Implemented Methods
 
 `send_chat`, `set_player_admin`, `set_player_team`, `kick_player`, `set_score_limit`, `set_time_limit`, `set_default_stadium`, `set_custom_stadium`, `set_teams_lock`, `set_team_colors`, `start_game`, `stop_game`, `pause_game`, `get_player`, `get_player_list`, `get_scores`, `clear_ban`, `clear_bans`, `set_password`, `set_require_recaptcha`, `reorder_players`, `send_announcement`, `set_kick_rate_limit`, `set_player_avatar`, `set_disc_properties`, `get_disc_properties`, `set_player_disc_properties`, `get_player_disc_properties`, `get_disc_count`
 
-### Notes
+### 📝 Notes
 
 - A valid HaxBall token is **required** (you can get one at https://www.haxball.com/headless)
 - `no_player=True` is recommended when running 24/7 bots
@@ -385,7 +385,7 @@ except HaxballBridgeError as e:
 
 ---
 
-## Development
+## 🧪 Development
 
 ```bash
 git clone https://github.com/yourusername/haxball.py
@@ -398,7 +398,7 @@ pytest
 
 ---
 
-## License
+## 📄 License
 
 This project is a wrapper around the official HaxBall Headless Host API. It is not affiliated with or endorsed by HaxBall.
 

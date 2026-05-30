@@ -1,4 +1,4 @@
-# haxball.py
+# ⚽ haxball.py
 
 > Uma ponte Python fiel e com tipagem segura para a API oficial do HaxBall Headless Host.
 
@@ -8,7 +8,7 @@ Controle uma sala headless real do HaxBall a partir do Python usando Playwright.
 
 ---
 
-## Funcionalidades
+## ✨ Funcionalidades
 
 - **Três camadas de API** — escolha seu nível de abstração:
   - **Native** — chamadas `HBInit` puras, máximo controle
@@ -22,14 +22,14 @@ Controle uma sala headless real do HaxBall a partir do Python usando Playwright.
 
 ---
 
-## Instalação
+## 📦 Instalação
 
 ```bash
 pip install haxball-py
 playwright install chromium
 ```
 
-### Requisitos
+### 📋 Requisitos
 
 - Python 3.10+
 - Playwright 1.50+
@@ -37,9 +37,9 @@ playwright install chromium
 
 ---
 
-## Início Rápido
+## 🚀 Início Rápido
 
-### Sala Básica
+### 🏟️ Sala Básica
 
 ```python
 import asyncio
@@ -78,7 +78,7 @@ async def main():
 asyncio.run(main())
 ```
 
-### Sala Estendida (Módulos e Comandos)
+### 🔌 Sala Estendida (Módulos e Comandos)
 
 ```python
 import asyncio
@@ -132,7 +132,7 @@ async def main():
 asyncio.run(main())
 ```
 
-### Motor Nativo (HBInit Puro)
+### ⚡ Motor Nativo (HBInit Puro)
 
 ```python
 import asyncio
@@ -171,7 +171,7 @@ asyncio.run(main())
 
 ---
 
-## Arquitetura
+## 🏗️ Arquitetura
 
 ```
 ┌─────────────────────────────────────────┐
@@ -191,9 +191,9 @@ O projeto respeita o host headless oficial do HaxBall como única fonte de verda
 
 ---
 
-## Referência de Configuração
+## ⚙️ Referência de Configuração
 
-### `HaxballConfig`
+### ⚙️ `HaxballConfig`
 
 | Campo | Tipo | Padrão | Descrição |
 |---|---|---|---|
@@ -215,9 +215,9 @@ O projeto respeita o host headless oficial do HaxBall como única fonte de verda
 
 ---
 
-## API da Sala
+## 🛠️ API da Sala
 
-### Métodos
+### 📡 Métodos
 
 | Python | JS | Descrição |
 |---|---|---|
@@ -252,7 +252,7 @@ O projeto respeita o host headless oficial do HaxBall como única fonte de verda
 | `get_disc_count()` → `int` | `getDiscCount` | Total de discos |
 | `wait_for_room_link(timeout?)` → `str` | — | Aguarda até obter o link |
 
-### Eventos
+### 🔔 Eventos
 
 | Python | JS | Payload |
 |---|---|---|
@@ -279,7 +279,7 @@ O projeto respeita o host headless oficial do HaxBall como única fonte de verda
 
 ---
 
-## Licença
+## 📄 Licença
 
 Este projeto é um wrapper em torno da API oficial do HaxBall Headless Host. Não é afiliado nem endossado pelo HaxBall.
 
