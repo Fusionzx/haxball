@@ -14,7 +14,7 @@ from .player_list import PlayerList
 from .command import Command, CommandArgument, CommandExecInfo
 from .module import Module
 from .disc import Disc
-from .models import Scores, Position
+from .models import Scores, Position, Player as NativePlayer
 from .enums import Teams
 
 class RoomExtended:
@@ -336,9 +336,9 @@ class RoomExtended:
 
         # Execute custom event listeners registered on Module system
         converted_args = [self.native._convert_payload(arg) for arg in args]
-        # Replace simple raw player maps with our extended Player object
+        # Replace native Pydantic Player models with our extended Player object
         for idx, val in enumerate(converted_args):
-            if isinstance(val, Player) and player_obj:
+            if isinstance(val, NativePlayer) and player_obj:
                 converted_args[idx] = player_obj
 
         # Trigger event emitter
@@ -407,11 +407,19 @@ class HaxballClientExtended(HaxballClient):
         if isinstance(config, dict):
             token = config.get("token")
             if not token or "YOUR_TOKEN" in str(token):
-                config["token"] = input("Please enter your HaxBall token: ").strip()
+                import os
+                token = os.environ.get("HAXBALL_TOKEN")
+                if not token:
+                    token = input("Please enter your HaxBall token: ").strip()
+                config["token"] = token
             config = HaxballConfig.model_validate(config)
         elif isinstance(config, HaxballConfig):
             if not config.token or "YOUR_TOKEN" in config.token:
-                config.token = input("Please enter your HaxBall token: ").strip()
+                import os
+                token = os.environ.get("HAXBALL_TOKEN")
+                if not token:
+                    token = input("Please enter your HaxBall token: ").strip()
+                config.token = token
         return await self.start(config)
 
     async def close(self) -> None:

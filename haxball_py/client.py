@@ -45,11 +45,19 @@ class HaxballClient:
         if isinstance(config, dict):
             token = config.get("token")
             if not token or "YOUR_TOKEN" in str(token):
-                config["token"] = input("Please enter your HaxBall token: ").strip()
+                import os
+                token = os.environ.get("HAXBALL_TOKEN")
+                if not token:
+                    token = input("Please enter your HaxBall token: ").strip()
+                config["token"] = token
             config = HaxballConfig.model_validate(config)
         elif isinstance(config, HaxballConfig):
             if not config.token or "YOUR_TOKEN" in config.token:
-                config.token = input("Please enter your HaxBall token: ").strip()
+                import os
+                token = os.environ.get("HAXBALL_TOKEN")
+                if not token:
+                    token = input("Please enter your HaxBall token: ").strip()
+                config.token = token
         return await self.start(config)
 
     async def close(self) -> None:
