@@ -90,8 +90,11 @@ from haxball_py.player import Player
 
 @module
 class AdminModule(Module):
-    @module_command(name="adm", usage="adm", desc="Obtener administrador", roles=[])
+    @module_command(name="adm", aliases=["admin"], usage="adm", desc="Obtener administrador", roles=[])
     async def claim_admin(self, info: CommandExecInfo):
+        if info.player.admin:
+            info.player.reply("¡Ya eres administrador!", color=0xFFFF00)
+            return
         info.player.admin = True
         info.player.reply("¡Ahora eres administrador!", color=0x00FF00)
 
