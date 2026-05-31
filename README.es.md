@@ -1,4 +1,4 @@
-# ⚽ haxball
+# ⚽ haxball-python
 
 > Un puente fiel y tipado para la API oficial de HaxBall Headless Host.
 
@@ -25,7 +25,7 @@ Controla una sala headless real de HaxBall desde Python usando Playwright. Sin i
 ## 📦 Instalación
 
 ```bash
-pip install haxball
+pip install haxball-python
 playwright install chromium
 ```
 
@@ -43,11 +43,11 @@ playwright install chromium
 
 ```python
 import asyncio
-from haxball_py import HaxballClient, HaxballConfig
+from haxball import HaxballClient, HaxBallConfig
 
 async def main():
     async with HaxballClient() as client:
-        room = await client.init(HaxballConfig(
+        room = await client.init(HaxBallConfig(
             room_name="Haxball.Py",
             player_name="Bot",
             max_players=16,
@@ -82,11 +82,11 @@ asyncio.run(main())
 
 ```python
 import asyncio
-from haxball_py import HaxballConfig
-from haxball_py.extended import HaxballClientExtended
-from haxball_py.module import Module, module, module_command, event
-from haxball_py.command import CommandExecInfo
-from haxball_py.player import Player
+from haxball import HaxBallConfig
+from haxball.extended import HaxballClientExtended
+from haxball.module import Module, module, module_command, event
+from haxball.command import CommandExecInfo
+from haxball.player import Player
 
 @module
 class AdminModule(Module):
@@ -107,7 +107,7 @@ class AdminModule(Module):
         await self.room.send(f"¡Hasta luego, {player.name}!", color=0xFF0000)
 
 async def main():
-    config = HaxballConfig(
+    config = HaxBallConfig(
         room_name="Sala Extendida Haxball",
         player_name="BotExtendido",
         max_players=10,
@@ -138,7 +138,7 @@ asyncio.run(main())
 
 ```python
 import asyncio
-from haxball_py._hbinit import HaxballJS
+from haxball._hbinit import HaxballJS
 
 async def main():
     HBInit = await HaxballJS({"debug": True})
@@ -195,7 +195,7 @@ El proyecto respeta el host headless oficial de HaxBall como única fuente de ve
 
 ## ⚙️ Referencia de Configuración
 
-### ⚙️ `HaxballConfig`
+### ⚙️ `HaxBallConfig`
 
 | Campo | Tipo | Defecto | Descripción |
 |---|---|---|---|
@@ -374,8 +374,8 @@ configurados de un solo carácter enviados sin prefijo, como `t hola`. Usa
 ## 🧪 Desarrollo
 
 ```bash
-git clone https://github.com/Fusionzx/haxball
-cd haxball
+git clone https://github.com/Fusionzx/haxball-python
+cd haxball-python
 pip install -e ".[dev]"
 playwright install chromium
 ruff check .
@@ -388,4 +388,7 @@ pytest
 
 Este proyecto es un wrapper alrededor de la API oficial de HaxBall Headless Host. No está afiliado ni respaldado por HaxBall.
 
-© 2026 contribuyentes de haxball
+Consulta la [licencia MIT](./LICENSE), la [guía de contribución](./CONTRIBUTING.md),
+el [código de conducta](./CODE_OF_CONDUCT.md) y la [política de seguridad](./SECURITY.md).
+
+© 2026 contribuyentes de haxball-python

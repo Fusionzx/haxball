@@ -5,7 +5,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from haxball_py._hbinit import HaxballJS
+from haxball._hbinit import HaxballJS
 
 
 async def main():

@@ -1,9 +1,9 @@
 import asyncio
-from haxball_py import HaxballConfig
-from haxball_py.extended import HaxballClientExtended
-from haxball_py.module import Module, module, module_command, event
-from haxball_py.command import CommandExecInfo
-from haxball_py.player import Player
+from haxball import HaxBallConfig
+from haxball.extended import HaxballClientExtended
+from haxball.module import Module, module, module_command, event
+from haxball.command import CommandExecInfo
+from haxball.player import Player
 
 
 _CIRCLE = {0: "🟢", 1: "🔴", 2: "🔵"}
@@ -50,7 +50,7 @@ class AdminModule(Module):
 
 
 async def main():
-    config = HaxballConfig(
+    config = HaxBallConfig(
         room_name="Extended Haxball Room",
         player_name="BotExtended",
         max_players=10,

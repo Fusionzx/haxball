@@ -1,4 +1,4 @@
-# ⚽ haxball
+# ⚽ haxball-python
 
 > Uma ponte Python fiel e com tipagem segura para a API oficial do HaxBall Headless Host.
 
@@ -25,7 +25,7 @@ Controle uma sala headless real do HaxBall a partir do Python usando Playwright.
 ## 📦 Instalação
 
 ```bash
-pip install haxball
+pip install haxball-python
 playwright install chromium
 ```
 
@@ -43,11 +43,11 @@ playwright install chromium
 
 ```python
 import asyncio
-from haxball_py import HaxballClient, HaxballConfig
+from haxball import HaxballClient, HaxBallConfig
 
 async def main():
     async with HaxballClient() as client:
-        room = await client.init(HaxballConfig(
+        room = await client.init(HaxBallConfig(
             room_name="Haxball.Py",
             player_name="Bot",
             max_players=16,
@@ -82,11 +82,11 @@ asyncio.run(main())
 
 ```python
 import asyncio
-from haxball_py import HaxballConfig
-from haxball_py.extended import HaxballClientExtended
-from haxball_py.module import Module, module, module_command, event
-from haxball_py.command import CommandExecInfo
-from haxball_py.player import Player
+from haxball import HaxBallConfig
+from haxball.extended import HaxballClientExtended
+from haxball.module import Module, module, module_command, event
+from haxball.command import CommandExecInfo
+from haxball.player import Player
 
 @module
 class AdminModule(Module):
@@ -107,7 +107,7 @@ class AdminModule(Module):
         await self.room.send(f"Até logo, {player.name}!", color=0xFF0000)
 
 async def main():
-    config = HaxballConfig(
+    config = HaxBallConfig(
         room_name="Sala Estendida Haxball",
         player_name="BotEstendido",
         max_players=10,
@@ -138,7 +138,7 @@ asyncio.run(main())
 
 ```python
 import asyncio
-from haxball_py._hbinit import HaxballJS
+from haxball._hbinit import HaxballJS
 
 async def main():
     HBInit = await HaxballJS({"debug": True})
@@ -195,7 +195,7 @@ O projeto respeita o host headless oficial do HaxBall como única fonte de verda
 
 ## ⚙️ Referência de Configuração
 
-### ⚙️ `HaxballConfig`
+### ⚙️ `HaxBallConfig`
 
 | Campo | Tipo | Padrão | Descrição |
 |---|---|---|---|
@@ -367,4 +367,7 @@ para manter visível a mensagem de um comando.
 
 Este projeto é um wrapper em torno da API oficial do HaxBall Headless Host. Não é afiliado nem endossado pelo HaxBall.
 
-© 2026 contribuidores do haxball
+Consulte a [licença MIT](./LICENSE), o [guia de contribuição](./CONTRIBUTING.md),
+o [código de conduta](./CODE_OF_CONDUCT.md) e a [política de segurança](./SECURITY.md).
+
+© 2026 contribuidores do haxball-python

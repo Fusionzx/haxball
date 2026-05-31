@@ -1,5 +1,5 @@
 from .client import HaxballClient
-from .config import GeoConfig, HaxballConfig
+from .config import GeoConfig, HaxBallConfig, HaxballConfig
 from .events import EventEmitter
 from .models import (
     DiscProperties,
@@ -24,6 +24,7 @@ __all__ = [
     "EventEmitter",
     "GeoConfig",
     "HaxballClient",
+    "HaxBallConfig",
     "HaxballConfig",
     "NativePlayer",
     "Position",

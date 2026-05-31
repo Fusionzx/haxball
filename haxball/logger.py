@@ -21,7 +21,7 @@ def _pname(p: Any) -> str:
 class RoomLogger:
     """Formats HaxBall room events into human-readable, timestamped log lines.
 
-    The logger is automatically called by :class:`~haxball_py.extended.RoomExtended`
+    The logger is automatically called by :class:`~haxball.extended.RoomExtended`
     when ``room.logging`` is ``True`` (the default).  Each event type has its
     own ``_on_<event>`` method; unhandled events are silently ignored.
 

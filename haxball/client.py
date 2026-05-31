@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from .browser import BrowserBridge
-from .config import HaxballConfig
+from .config import HaxBallConfig
 from .room import Room
 
 
@@ -24,7 +24,7 @@ class HaxballClient:
             raise RuntimeError("Room not initialized")
         return self._room
 
-    async def start(self, config: HaxballConfig) -> Room:
+    async def start(self, config: HaxBallConfig) -> Room:
         bridge = BrowserBridge(
             headless=config.headless,
             proxy_server=config.proxy_server,
@@ -41,7 +41,7 @@ class HaxballClient:
         self._room = room
         return room
 
-    async def init(self, config: HaxballConfig | dict[str, Any]) -> Room:
+    async def init(self, config: HaxBallConfig | dict[str, Any]) -> Room:
         if isinstance(config, dict):
             token = config.get("token")
             if not token or "YOUR_TOKEN" in str(token):
@@ -51,8 +51,8 @@ class HaxballClient:
                 if not token:
                     token = input("Please enter your HaxBall token: ").strip()
                 config["token"] = token
-            config = HaxballConfig.model_validate(config)
-        elif isinstance(config, HaxballConfig):
+            config = HaxBallConfig.model_validate(config)
+        elif isinstance(config, HaxBallConfig):
             if not config.token or "YOUR_TOKEN" in config.token:
                 import os
 

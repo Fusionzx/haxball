@@ -7,7 +7,7 @@ from typing import Any, Awaitable, Callable, Type
 from .room import Room
 from ._bridge import ExtendedBrowserBridge
 from .client import HaxballClient
-from .config import HaxballConfig
+from .config import HaxBallConfig
 from .event_emitter import EventEmitter
 from .player import Player
 from .player_list import PlayerList
@@ -22,8 +22,8 @@ from .enums import Teams
 class RoomExtended:
     """The main high-level API for controlling a HaxBall room.
 
-    ``RoomExtended`` wraps a :class:`~haxball_py.room.Room` (bridge) or
-    :class:`~haxball_py.room_native.RoomNative` (native engine) and adds:
+    ``RoomExtended`` wraps a :class:`~haxball.room.Room` (bridge) or
+    :class:`~haxball.room_native.RoomNative` (native engine) and adds:
 
     * **Live player properties** — ``player.admin = True``, ``player.team = Teams.Red``
     * **Module system** — organise your code into reusable :class:`Module` classes
@@ -43,10 +43,10 @@ class RoomExtended:
         print(f"Link: {room.room_link}")
     """
 
-    def __init__(self, native_room: Room, config: HaxballConfig) -> None:
+    def __init__(self, native_room: Room, config: HaxBallConfig) -> None:
         self.native = native_room
-        """The underlying native :class:`~haxball_py.room.Room` or
-        :class:`~haxball_py.room_native.RoomNative` instance.  Use this to
+        """The underlying native :class:`~haxball.room.Room` or
+        :class:`~haxball.room_native.RoomNative` instance.  Use this to
         access low-level methods such as ``room.native.set_score_limit()``."""
 
         self.name: str = config.room_name
@@ -59,7 +59,7 @@ class RoomExtended:
         """The maximum number of players the room accepts."""
 
         self.geo = config.geo
-        """The geographic location hint (:class:`~haxball_py.config.GeoConfig`), or ``None``."""
+        """The geographic location hint (:class:`~haxball.config.GeoConfig`), or ``None``."""
 
         self.token: str | None = config.token
         """The HaxBall authentication token used to create the room, or ``None``."""
@@ -76,7 +76,7 @@ class RoomExtended:
         """
 
         self.custom_events = EventEmitter()
-        """An :class:`~haxball_py.event_emitter.EventEmitter` for defining and
+        """An :class:`~haxball.event_emitter.EventEmitter` for defining and
         emitting custom events.  Subscribe with ``on()``, fire with ``emit()``.
         """
 
@@ -90,18 +90,18 @@ class RoomExtended:
         """
 
         self.players = PlayerList()
-        """The :class:`~haxball_py.player_list.PlayerList` of currently
+        """The :class:`~haxball.player_list.PlayerList` of currently
         connected players.  Access by ID: ``room.players[1]``."""
 
         self.commands: list[Command] = []
-        """All registered :class:`~haxball_py.command.Command` objects."""
+        """All registered :class:`~haxball.command.Command` objects."""
 
         self.password: str | None = config.password
         """The current room password, or ``None``."""
 
         self.prefix: str = config.prefix
         """The command prefix (default ``"!"``).  Set via
-        :attr:`HaxballConfig.prefix` or changed at runtime before modules
+        :attr:`HaxBallConfig.prefix` or changed at runtime before modules
         register commands::
 
             room.prefix = "/"
@@ -146,7 +146,7 @@ class RoomExtended:
     async def get_scores(self) -> Scores | None:
         """Fetches the current game scores.
 
-        :returns: A :class:`~haxball_py.models.Scores` object, or ``None``
+        :returns: A :class:`~haxball.models.Scores` object, or ``None``
                   if no game is in progress.
         """
         return await self.native.get_scores()
@@ -374,7 +374,7 @@ class RoomExtended:
 
     @property
     async def scores(self) -> Scores | None:
-        """The current :class:`~haxball_py.models.Scores`, or ``None``."""
+        """The current :class:`~haxball.models.Scores`, or ``None``."""
         return await self.native.get_scores()
 
     @property
@@ -587,10 +587,10 @@ class HaxballClientExtended(HaxballClient):
         self.backend = backend
         self._engine: Any = None
 
-    async def start(self, config: HaxballConfig) -> RoomExtended:
+    async def start(self, config: HaxBallConfig) -> RoomExtended:
         """Creates and starts the room, returning a :class:`RoomExtended`.
 
-        :param config: The :class:`~haxball_py.config.HaxballConfig` object.
+        :param config: The :class:`~haxball.config.HaxBallConfig` object.
         """
         # Determine backend to use
         use_native = False
@@ -642,11 +642,11 @@ class HaxballClientExtended(HaxballClient):
             self._room = extended_room
             return extended_room
 
-    async def init(self, config: HaxballConfig | dict[str, Any]) -> RoomExtended:
+    async def init(self, config: HaxBallConfig | dict[str, Any]) -> RoomExtended:
         """Initialises a room, prompting for a token if none is set
         and checking the ``HAXBALL_TOKEN`` environment variable.
 
-        :param config: A :class:`~haxball_py.config.HaxballConfig` or dict.
+        :param config: A :class:`~haxball.config.HaxBallConfig` or dict.
         """
         if isinstance(config, dict):
             token = config.get("token")
@@ -657,8 +657,8 @@ class HaxballClientExtended(HaxballClient):
                 if not token:
                     token = input("Please enter your HaxBall token: ").strip()
                 config["token"] = token
-            config = HaxballConfig.model_validate(config)
-        elif isinstance(config, HaxballConfig):
+            config = HaxBallConfig.model_validate(config)
+        elif isinstance(config, HaxBallConfig):
             if not config.token or "YOUR_TOKEN" in config.token:
                 import os
 

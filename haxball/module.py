@@ -49,7 +49,7 @@ class Module(metaclass=ModuleMeta):
     Extend this class and use the decorators :func:`@event`,
     :func:`@module_command` and :func:`@custom_event` to declare event handlers
     and chat commands.  Register the module via
-    :meth:`RoomExtended.module() <haxball_py.extended.RoomExtended.module>`.
+    :meth:`RoomExtended.module() <haxball.extended.RoomExtended.module>`.
 
     Usage::
 

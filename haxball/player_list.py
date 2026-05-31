@@ -6,7 +6,7 @@ from .enums import Teams
 
 
 class PlayerList(collections.abc.MutableMapping):
-    """A mapping of player IDs to :class:`~haxball_py.player.Player` objects.
+    """A mapping of player IDs to :class:`~haxball.player.Player` objects.
 
     Behaves like a dict::
 
@@ -43,14 +43,14 @@ class PlayerList(collections.abc.MutableMapping):
     def add(self, player: Player) -> None:
         """Adds a player to the list.
 
-        :param player: The :class:`~haxball_py.player.Player` to add.
+        :param player: The :class:`~haxball.player.Player` to add.
         """
         self._players[player.id] = player
 
     def remove(self, player: Player | int) -> None:
         """Removes a player from the list.
 
-        :param player: A :class:`~haxball_py.player.Player` instance or a numeric ID.
+        :param player: A :class:`~haxball.player.Player` instance or a numeric ID.
         """
         pid = player.id if isinstance(player, Player) else player
         if pid in self._players:
@@ -107,7 +107,7 @@ class PlayerList(collections.abc.MutableMapping):
         """Finds a player by their public auth token.
 
         :param auth: The auth string to match.
-        :returns: The matching :class:`~haxball_py.player.Player`, or ``None``.
+        :returns: The matching :class:`~haxball.player.Player`, or ``None``.
         """
         return self.get(lambda p: p.auth == auth)
 

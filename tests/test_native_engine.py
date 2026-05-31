@@ -1,8 +1,8 @@
 import os
 import pytest
-from haxball_py import HaxballJS
-from haxball_py.utils import decode_ip_from_conn
-from haxball_py._native_engine import NativeEngine
+from haxball import HaxballJS
+from haxball.utils import decode_ip_from_conn
+from haxball._native_engine import NativeEngine
 
 
 def test_decode_ip_from_conn():
@@ -35,6 +35,7 @@ def test_native_engine_source_has_delete_message():
     assert "return false" in source, "deleteMessage: onPlayerChat must return false for commands"
 
 
+@pytest.mark.slow
 @pytest.mark.asyncio
 async def test_haxball_js_init():
     try:

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class Player(AbstractDisc):
     """Represents a player in the HaxBall room.
 
-    A Player is also a :class:`~haxball_py.disc.Disc` (via :class:`AbstractDisc`),
+    A Player is also a :class:`~haxball.disc.Disc` (via :class:`AbstractDisc`),
     so all disc properties (``x``, ``y``, ``radius``, ``xspeed``, etc.) are
     available and any write to them automatically syncs back to the game engine.
 
@@ -109,7 +109,7 @@ class Player(AbstractDisc):
     def team(self) -> int:
         """The team the player is currently on.
 
-        Possible values are defined in :class:`~haxball_py.enums.Teams`:
+        Possible values are defined in :class:`~haxball.enums.Teams`:
 
         * ``Teams.Spectators`` (0)
         * ``Teams.Red`` (1)
@@ -150,7 +150,7 @@ class Player(AbstractDisc):
     def position(self) -> Position | None:
         """The player's current ``(x, y)`` position on the field.
 
-        This is a :class:`~haxball_py.models.Position` named tuple, or
+        This is a :class:`~haxball.models.Position` named tuple, or
         ``None`` when the player is spectating or no game is running.
         Setting this value also updates the player's disc position.
         """
@@ -168,7 +168,7 @@ class Player(AbstractDisc):
         """Custom permission roles attached to this player.
 
         Roles are checked by :meth:`Command.is_allowed
-        <haxball_py.command.Command.is_allowed>` to decide whether
+        <haxball.command.Command.is_allowed>` to decide whether
         a player can run a given command.
 
         The ``"admin"`` role is automatically managed — it is added when

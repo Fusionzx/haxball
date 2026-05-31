@@ -55,9 +55,9 @@ class CommandExecInfo:
     """Information passed to a command's execution function.
 
     Attributes:
-        player:   The :class:`~haxball_py.player.Player` who ran the command.
+        player:   The :class:`~haxball.player.Player` who ran the command.
         message:  The raw chat message (including prefix).
-        room:     The :class:`~haxball_py.extended.RoomExtended` instance.
+        room:     The :class:`~haxball.extended.RoomExtended` instance.
         at:       The :class:`~datetime.datetime` when the command was executed.
         arguments: List of :class:`CommandArgument` parsed from the message.
     """
@@ -73,8 +73,8 @@ class CommandExecInfo:
 class Command:
     """A chat command registered on the room.
 
-    Use :meth:`RoomExtended.command <haxball_py.extended.RoomExtended.command>`
-    or the :func:`@module_command <haxball_py.module.module_command>` decorator
+    Use :meth:`RoomExtended.command <haxball.extended.RoomExtended.command>`
+    or the :func:`@module_command <haxball.module.module_command>` decorator
     to add commands.
     """
 

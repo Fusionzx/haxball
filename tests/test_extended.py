@@ -2,7 +2,9 @@ import pytest
 from datetime import datetime
 from unittest.mock import MagicMock
 
-from haxball_py import (
+from haxball import (
+    HaxBallConfig,
+    HaxballConfig,
     Player,
     PlayerList,
     Command,
@@ -14,6 +16,10 @@ from haxball_py import (
     event,
     Teams,
 )
+
+
+def test_config_public_name_and_legacy_alias():
+    assert HaxballConfig is HaxBallConfig
 
 
 def test_command_argument_parsing():

@@ -1,4 +1,4 @@
-# ⚽ haxball
+# ⚽ haxball-python
 
 > A faithful, type-safe Python bridge for the official HaxBall Headless Host API.
 
@@ -25,7 +25,7 @@ Drive a real HaxBall headless room from Python using Playwright. No reverse-engi
 ## 📦 Installation
 
 ```bash
-pip install haxball
+pip install haxball-python
 playwright install chromium
 ```
 
@@ -43,11 +43,11 @@ playwright install chromium
 
 ```python
 import asyncio
-from haxball_py import HaxballClient, HaxballConfig
+from haxball import HaxballClient, HaxBallConfig
 
 async def main():
     async with HaxballClient() as client:
-        room = await client.init(HaxballConfig(
+        room = await client.init(HaxBallConfig(
             room_name="Haxball.Py",
             player_name="Bot",
             max_players=16,
@@ -82,11 +82,11 @@ asyncio.run(main())
 
 ```python
 import asyncio
-from haxball_py import HaxballConfig
-from haxball_py.extended import HaxballClientExtended
-from haxball_py.module import Module, module, module_command, event
-from haxball_py.command import CommandExecInfo
-from haxball_py.player import Player
+from haxball import HaxBallConfig
+from haxball.extended import HaxballClientExtended
+from haxball.module import Module, module, module_command, event
+from haxball.command import CommandExecInfo
+from haxball.player import Player
 
 @module
 class AdminModule(Module):
@@ -107,7 +107,7 @@ class AdminModule(Module):
         await self.room.send(f"Goodbye, {player.name}!", color=0xFF0000)
 
 async def main():
-    config = HaxballConfig(
+    config = HaxBallConfig(
         room_name="Extended Haxball Room",
         player_name="BotExtended",
         max_players=10,
@@ -138,7 +138,7 @@ asyncio.run(main())
 
 ```python
 import asyncio
-from haxball_py._hbinit import HaxballJS
+from haxball._hbinit import HaxballJS
 
 async def main():
     HBInit = await HaxballJS({"debug": True})
@@ -195,7 +195,7 @@ The project respects the official HaxBall headless host as the single source of 
 
 ## ⚙️ Configuration Reference
 
-### ⚙️ `HaxballConfig`
+### ⚙️ `HaxBallConfig`
 
 | Field | Type | Default | Description |
 |---|---|---|---|
@@ -388,7 +388,7 @@ to leave a command message visible.
 ### 📦 Module Example
 
 ```python
-from haxball_py.module import Module, module, module_command, event
+from haxball.module import Module, module, module_command, event
 
 @module
 class MyModule(Module):
@@ -408,7 +408,7 @@ class MyModule(Module):
 The native engine (`HaxballJS`) is a thin wrapper that obtains the `HBInit` function from the HaxBall page and exposes it as a Python callable. This is the lowest-level API — you pass the exact same object you would pass in JavaScript.
 
 ```python
-from haxball_py._hbinit import HaxballJS
+from haxball._hbinit import HaxballJS
 
 HBInit = await HaxballJS({"debug": True})
 room = await HBInit({"roomName": "...", "maxPlayers": 16, ...})
@@ -431,7 +431,7 @@ Raised when a browser operation exceeds the configured timeout.
 ### 💡 Example
 
 ```python
-from haxball_py.errors import HaxballBridgeError
+from haxball.errors import HaxballBridgeError
 
 try:
     room = await client.init(config)
@@ -459,8 +459,8 @@ except HaxballBridgeError as e:
 ## 🧪 Development
 
 ```bash
-git clone https://github.com/Fusionzx/haxball
-cd haxball
+git clone https://github.com/Fusionzx/haxball-python
+cd haxball-python
 pip install -e ".[dev]"
 playwright install chromium
 ruff check .
@@ -473,4 +473,7 @@ pytest
 
 This project is a wrapper around the official HaxBall Headless Host API. It is not affiliated with or endorsed by HaxBall.
 
-© 2026 haxball contributors
+See the [MIT License](./LICENSE), [contribution guide](./CONTRIBUTING.md),
+[code of conduct](./CODE_OF_CONDUCT.md), and [security policy](./SECURITY.md).
+
+© 2026 haxball-python contributors

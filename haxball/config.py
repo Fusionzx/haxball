@@ -11,7 +11,7 @@ class GeoConfig(BaseModel):
     lon: float = 0.0
 
 
-class HaxballConfig(BaseModel):
+class HaxBallConfig(BaseModel):
     room_name: str = Field(alias="roomName", min_length=1)
     player_name: str | None = Field(default=None, alias="playerName")
     password: str | None = None
@@ -39,7 +39,7 @@ class HaxballConfig(BaseModel):
         return list(value)
 
     @model_validator(mode="after")
-    def _normalize(self) -> "HaxballConfig":
+    def _normalize(self) -> "HaxBallConfig":
         if self.player_name is None and not self.no_player:
             self.player_name = "Haxball.Py"
         return self
@@ -61,3 +61,7 @@ class HaxballConfig(BaseModel):
         if self.geo is not None:
             data["geo"] = self.geo.model_dump()
         return data
+
+
+# Backward-compatible alias for releases that exposed the older capitalization.
+HaxballConfig = HaxBallConfig

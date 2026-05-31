@@ -1,13 +1,13 @@
 import asyncio
 import os
 
-from haxball_py import HaxballClient, HaxballConfig
+from haxball import HaxballClient, HaxBallConfig
 
 
 async def main() -> None:
     async with HaxballClient() as client:
         room = await client.init(
-            HaxballConfig(
+            HaxBallConfig(
                 room_name="Haxball.Py",
                 player_name="Bot",
                 max_players=16,
