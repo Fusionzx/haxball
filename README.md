@@ -97,11 +97,11 @@ class AdminModule(Module):
 
     @event
     async def on_player_join(self, player: Player):
-        self.room.send(f"Welcome to the room, {player.name}!", color=0x00FFFF)
+        await self.room.send(f"Welcome to the room, {player.name}!", color=0x00FFFF)
 
     @event
     async def on_player_leave(self, player: Player):
-        self.room.send(f"Goodbye, {player.name}!", color=0xFF0000)
+        await self.room.send(f"Goodbye, {player.name}!", color=0xFF0000)
 
 async def main():
     config = HaxballConfig(
@@ -204,6 +204,7 @@ The project respects the official HaxBall headless host as the single source of 
 | `no_player` (alias `noPlayer`) | `bool` | `True` | Whether the host joins as a player |
 | `token` | `str` | required (prompted) | HaxBall authentication token |
 | `geo` | `GeoConfig \| None` | `None` | Geolocation override |
+| `prefix` | `str` | `"!"` | Extended API command prefix |
 | `proxy_server` | `str \| None` | `None` | HTTP proxy for the browser |
 | `headless` | `bool` | `True` | Run browser headless |
 | `browser_executable_path` | `str \| None` | `None` | Custom Chromium path |
@@ -361,6 +362,26 @@ Setting any of these immediately syncs to the native room.
 | `room.remove_command(name)` | Remove a command |
 | `room.module(ModuleClass)` | Load a module |
 
+### Private Messages
+
+```python
+await room.send("Only player #3 can see this", target_id=3)
+player.reply("Only this player can see this")
+```
+
+`player.reply(...)` is a convenience wrapper for `room.send(..., target_id=player.id)`.
+
+### Logging and Hidden Commands
+
+Extended rooms log room events with `RoomLogger` by default. Disable this with
+`room.logging = False`, or use `RoomLogger().log_event(...)` directly when you
+need the same formatting outside a room.
+
+Commands registered with `room.command(...)` or `@module_command(...)` hide the
+player's original chat message by default, including configured single-character
+commands sent without the prefix, such as `t hello`. Pass `delete_message=False`
+to leave a command message visible.
+
 ### 📦 Module Example
 
 ```python
@@ -370,9 +391,9 @@ from haxball_py.module import Module, module, module_command, event
 class MyModule(Module):
     @event
     async def on_player_join(self, player):
-        self.room.send(f"Welcome, {player.name}!")
+        await self.room.send(f"Welcome, {player.name}!")
 
-    @module_command(name="ping", usage="ping", desc="Pong!")
+    @module_command(name="ping", usage="ping", desc="Pong!", delete_message=False)
     async def ping(self, info):
         info.player.reply("Pong!")
 ```

@@ -39,12 +39,6 @@ class AdminModule(Module):
             info.player.reply("Usage: !t <message>", color=0xFFFF00)
             return
         _teamchat(info.player, " ".join(a.raw for a in info.arguments))
-        room = info.player.room
-        if room is not None:
-            try:
-                await room.native.delete_message(info.message)
-            except Exception:
-                pass
 
     @event
     async def on_player_join(self, player: Player):

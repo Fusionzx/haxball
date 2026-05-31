@@ -97,11 +97,11 @@ class AdminModule(Module):
 
     @event
     async def on_player_join(self, player: Player):
-        self.room.send(f"¡Bienvenido a la sala, {player.name}!", color=0x00FFFF)
+        await self.room.send(f"¡Bienvenido a la sala, {player.name}!", color=0x00FFFF)
 
     @event
     async def on_player_leave(self, player: Player):
-        self.room.send(f"¡Hasta luego, {player.name}!", color=0xFF0000)
+        await self.room.send(f"¡Hasta luego, {player.name}!", color=0xFF0000)
 
 async def main():
     config = HaxballConfig(
@@ -204,6 +204,7 @@ El proyecto respeta el host headless oficial de HaxBall como única fuente de ve
 | `no_player` (alias `noPlayer`) | `bool` | `True` | El host no entra como jugador |
 | `token` | `str` | requerido (solicitado) | Token de autenticación de HaxBall |
 | `geo` | `GeoConfig \| None` | `None` | Geolocalización personalizada |
+| `prefix` | `str` | `"!"` | Prefijo de comandos de la API extendida |
 | `proxy_server` | `str \| None` | `None` | Proxy HTTP para el navegador |
 | `headless` | `bool` | `True` | Ejecutar navegador sin cabeza |
 | `browser_executable_path` | `str \| None` | `None` | Ruta personalizada de Chromium |
@@ -344,6 +345,26 @@ Cualquier cambio en estas propiedades se sincroniza inmediatamente con la sala n
 | `room.command(options)` | Registrar un comando |
 | `room.remove_command(nombre)` | Eliminar un comando |
 | `room.module(ModuleClass)` | Cargar un módulo |
+
+### Mensajes Privados
+
+```python
+await room.send("Solo el jugador #3 puede ver esto", target_id=3)
+player.reply("Solo este jugador puede ver esto")
+```
+
+`player.reply(...)` es un atajo para `room.send(..., target_id=player.id)`.
+
+### Logging y Comandos Ocultos
+
+Las salas extendidas registran eventos con `RoomLogger` de forma predeterminada.
+Desactívalo con `room.logging = False`, o usa `RoomLogger().log_event(...)`
+directamente si necesitas el mismo formato fuera de una sala.
+
+Los comandos registrados con `room.command(...)` o `@module_command(...)`
+ocultan el mensaje original del jugador por defecto, incluso los comandos
+configurados de un solo carácter enviados sin prefijo, como `t hola`. Usa
+`delete_message=False` para mantener visible el mensaje de un comando.
 
 ---
 

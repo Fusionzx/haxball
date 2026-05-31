@@ -97,11 +97,11 @@ class AdminModule(Module):
 
     @event
     async def on_player_join(self, player: Player):
-        self.room.send(f"Bem-vindo à sala, {player.name}!", color=0x00FFFF)
+        await self.room.send(f"Bem-vindo à sala, {player.name}!", color=0x00FFFF)
 
     @event
     async def on_player_leave(self, player: Player):
-        self.room.send(f"Até logo, {player.name}!", color=0xFF0000)
+        await self.room.send(f"Até logo, {player.name}!", color=0xFF0000)
 
 async def main():
     config = HaxballConfig(
@@ -204,6 +204,7 @@ O projeto respeita o host headless oficial do HaxBall como única fonte de verda
 | `no_player` (alias `noPlayer`) | `bool` | `True` | Host não entra como jogador |
 | `token` | `str` | obrigatório (solicitado) | Token de autenticação HaxBall |
 | `geo` | `GeoConfig \| None` | `None` | Geolocalização personalizada |
+| `prefix` | `str` | `"!"` | Prefixo de comandos da API estendida |
 | `proxy_server` | `str \| None` | `None` | Proxy HTTP para o navegador |
 | `headless` | `bool` | `True` | Executar navegador headless |
 | `browser_executable_path` | `str \| None` | `None` | Caminho personalizado do Chromium |
@@ -336,6 +337,26 @@ Qualquer alteração nessas propriedades sincroniza imediatamente com a sala nat
 | `room.command(options)` | Registrar um comando |
 | `room.remove_command(nome)` | Remover um comando |
 | `room.module(ModuleClass)` | Carregar um módulo |
+
+### Mensagens Privadas
+
+```python
+await room.send("Somente o jogador #3 pode ver isto", target_id=3)
+player.reply("Somente este jogador pode ver isto")
+```
+
+`player.reply(...)` é um atalho para `room.send(..., target_id=player.id)`.
+
+### Logging e Comandos Ocultos
+
+Salas estendidas registram eventos com `RoomLogger` por padrão. Desative com
+`room.logging = False`, ou use `RoomLogger().log_event(...)` diretamente quando
+precisar da mesma formatação fora de uma sala.
+
+Comandos registrados com `room.command(...)` ou `@module_command(...)` ocultam a
+mensagem original do jogador por padrão, incluindo comandos configurados de um
+único caractere enviados sem prefixo, como `t oi`. Use `delete_message=False`
+para manter visível a mensagem de um comando.
 
 ---
 
