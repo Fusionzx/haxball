@@ -1,4 +1,4 @@
-# ⚽ haxball-py
+# ⚽ haxball
 
 > Uma ponte Python fiel e com tipagem segura para a API oficial do HaxBall Headless Host.
 
@@ -25,7 +25,7 @@ Controle uma sala headless real do HaxBall a partir do Python usando Playwright.
 ## 📦 Instalação
 
 ```bash
-pip install haxball-py
+pip install haxball
 playwright install chromium
 ```
 
@@ -364,4 +364,4 @@ para manter visível a mensagem de um comando.
 
 Este projeto é um wrapper em torno da API oficial do HaxBall Headless Host. Não é afiliado nem endossado pelo HaxBall.
 
-© 2026 contribuidores do haxball-py
+© 2026 contribuidores do haxball

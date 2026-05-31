@@ -1,4 +1,4 @@
-# ⚽ haxball-py
+# ⚽ haxball
 
 > A faithful, type-safe Python bridge for the official HaxBall Headless Host API.
 
@@ -25,7 +25,7 @@ Drive a real HaxBall headless room from Python using Playwright. No reverse-engi
 ## 📦 Installation
 
 ```bash
-pip install haxball-py
+pip install haxball
 playwright install chromium
 ```
 
@@ -456,8 +456,8 @@ except HaxballBridgeError as e:
 ## 🧪 Development
 
 ```bash
-git clone https://github.com/Fusionzx/haxball-py
-cd haxball-py
+git clone https://github.com/Fusionzx/haxball
+cd haxball
 pip install -e ".[dev]"
 playwright install chromium
 ruff check .
@@ -470,4 +470,4 @@ pytest
 
 This project is a wrapper around the official HaxBall Headless Host API. It is not affiliated with or endorsed by HaxBall.
 
-© 2026 haxball-py contributors
+© 2026 haxball contributors

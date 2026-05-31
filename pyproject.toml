@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "haxball-py"
+name = "haxball"
 version = "0.1.0"
 description = "Python bridge for the HaxBall Headless Host API"
 readme = "README.md"
