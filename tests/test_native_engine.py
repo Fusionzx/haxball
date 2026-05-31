@@ -6,7 +6,7 @@ from haxball_py._native_engine import NativeEngine
 
 
 def test_decode_ip_from_conn():
-    # ASCII hex encoding: "192.0.2.1"
+    # ASCII hex encoding: RFC 5737 documentation-only address "192.0.2.1"
     hex_ip = "3139322e302e322e31"  # "192.0.2.1" in hex
     assert decode_ip_from_conn(hex_ip) == "192.0.2.1"
 
