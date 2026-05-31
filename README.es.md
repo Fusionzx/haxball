@@ -1,4 +1,4 @@
-# ⚽ haxball.py
+# ⚽ haxball-py
 
 > Un puente fiel y tipado para la API oficial de HaxBall Headless Host.
 
@@ -371,8 +371,8 @@ configurados de un solo carácter enviados sin prefijo, como `t hola`. Usa
 ## 🧪 Desarrollo
 
 ```bash
-git clone https://github.com/yourusername/haxball.py
-cd haxball.py
+git clone https://github.com/Fusionzx/haxball-py
+cd haxball-py
 pip install -e ".[dev]"
 playwright install chromium
 ruff check .
@@ -385,4 +385,4 @@ pytest
 
 Este proyecto es un wrapper alrededor de la API oficial de HaxBall Headless Host. No está afiliado ni respaldado por HaxBall.
 
-© 2026 contribuyentes de haxball.py
+© 2026 contribuyentes de haxball-py

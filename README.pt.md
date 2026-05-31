@@ -1,4 +1,4 @@
-# ⚽ haxball.py
+# ⚽ haxball-py
 
 > Uma ponte Python fiel e com tipagem segura para a API oficial do HaxBall Headless Host.
 
@@ -364,4 +364,4 @@ para manter visível a mensagem de um comando.
 
 Este projeto é um wrapper em torno da API oficial do HaxBall Headless Host. Não é afiliado nem endossado pelo HaxBall.
 
-© 2026 contribuidores do haxball.py
+© 2026 contribuidores do haxball-py

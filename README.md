@@ -1,4 +1,4 @@
-# ⚽ haxball.py
+# ⚽ haxball-py
 
 > A faithful, type-safe Python bridge for the official HaxBall Headless Host API.
 
@@ -456,8 +456,8 @@ except HaxballBridgeError as e:
 ## 🧪 Development
 
 ```bash
-git clone https://github.com/yourusername/haxball.py
-cd haxball.py
+git clone https://github.com/Fusionzx/haxball-py
+cd haxball-py
 pip install -e ".[dev]"
 playwright install chromium
 ruff check .
@@ -470,4 +470,4 @@ pytest
 
 This project is a wrapper around the official HaxBall Headless Host API. It is not affiliated with or endorsed by HaxBall.
 
-© 2026 haxball.py contributors
+© 2026 haxball-py contributors
